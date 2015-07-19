@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">PopularMovies</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_detail">DetailActivity</string>
+
+    <!-- preferences -->
+    <string name="pref_sort_key">sort</string>
+    <string name="pref_sort_label">Sort By</string>
+    <string name="pref_sort_dialogue_label">Sort By</string>
+    <string name="pref_sort_default">popularity.desc</string>
+
+    <!-- detail view -->
+    <string name="rating">Rating</string>
+</resources>

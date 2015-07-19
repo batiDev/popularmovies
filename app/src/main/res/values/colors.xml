@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- primary color -->
+    <color name="primary_color">#E65100</color>
+
+    <!-- detail view -->
+    <color name="header_text_color">#F5F5F5</color>
+
+    <!-- primary background -->
+    <color name="primary_background">#424242</color>
+
+
+
+</resources>
