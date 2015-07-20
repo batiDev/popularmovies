@@ -29,7 +29,7 @@ public class AppConstants {
     public static final String POSTER_PATH = "poster_path";
 
     //General Messages
-    public static final String API_KEY_WARNING = "API Key may not be set";
+    public static final String API_KEY_WARNING = "Please set API Key";
     public static final String APP_START_ERROR = "Could not start application";
 
 }

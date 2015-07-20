@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.vel9studios.levani.popularmovies.fragments.DetailActivityFragment;
 import com.vel9studios.levani.popularmovies.R;
+import com.vel9studios.levani.popularmovies.fragments.DetailActivityFragment;
 
 
 //Code from "Developing Android Apps: Fundamentals"/default code

@@ -228,9 +228,13 @@ public class PopularMoviesFragment extends Fragment {
 
             String releaseDate = parseMovieContents(movieObj, AppConstants.RELEASE_DATE);
 
-            //Date string is in "YYYY-MM-DD" format, get just the year
-            if (!releaseDate.equals(AppConstants.STRING_NO_DATA) && releaseDate.length() > 4)
+            //Date string is (usually) in "YYYY-MM-DD" format, get just the year
+            if (!releaseDate.equals(AppConstants.STRING_NO_DATA) && releaseDate.length() > 4){
                 releaseDate = releaseDate.substring(0,4);
+            //year data may also just be "empty" check for it here
+            } else if (releaseDate.length() == 0) {
+                releaseDate = AppConstants.STRING_NO_DATA;
+            }
 
             String voteAverage = parseMovieContents(movieObj, AppConstants.VOTE_AVERAGE);
 
