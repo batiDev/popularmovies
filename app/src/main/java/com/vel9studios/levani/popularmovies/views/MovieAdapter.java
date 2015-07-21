@@ -32,6 +32,10 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         this.movies = movies;
     }
 
+    public ArrayList<Movie> getValues(){
+        return movies;
+    }
+
     /**
      * Prepare image, retrieve constants and allow for basic error handlng
      * @param imageView imageView that needs to be populated

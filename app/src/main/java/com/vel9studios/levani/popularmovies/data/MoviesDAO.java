@@ -40,6 +40,7 @@ public class MoviesDAO {
 
         try {
 
+            Log.i(LOG_TAG, "MAKING REQUEST");
             //check for API key
             if (AppConstantsPrivate.API_KEY.length() == 0)
                 Log.e(LOG_TAG, AppConstants.API_KEY_WARNING);
@@ -63,6 +64,7 @@ public class MoviesDAO {
                 // Nothing to do.
                 return null;
             }
+
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
             String line;
@@ -81,11 +83,9 @@ public class MoviesDAO {
             movieListJsonStr = buffer.toString();
 
         } catch (IOException e) {
-
-            Log.e(LOG_TAG,e.getMessage());
-            // If the code didn't successfully get the weather data, there's no point in attemping
-            // to parse it.
+            Log.e(LOG_TAG,AppConstants.CONNECTION_ERROR);
             return null;
+
         } finally{
             if (urlConnection != null) {
                 urlConnection.disconnect();

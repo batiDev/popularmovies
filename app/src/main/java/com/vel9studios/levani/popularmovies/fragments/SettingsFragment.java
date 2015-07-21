@@ -39,6 +39,9 @@ public class SettingsFragment extends PreferenceFragment
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
+
+//        PopularMoviesFragment moviesFragment = new PopularMoviesFragment();
+//        moviesFragment.updateMovies();
     }
 
     @Override
@@ -54,7 +57,6 @@ public class SettingsFragment extends PreferenceFragment
             if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
-
         } else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);

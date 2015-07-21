@@ -39,16 +39,19 @@ public class PopularMoviesFragment extends Fragment {
     private final String LOG_TAG = PopularMoviesFragment.class.getSimpleName();
     private MovieAdapter moviesAdapter;
     private Boolean applicationRunStatus;
+    private ArrayList<Movie> movies;
+    private String activeSortOrder = "";
 
     public PopularMoviesFragment() {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onSaveInstanceState(Bundle savedState) {
 
-        //get movies on view
-        if (applicationRunStatus) updateMovies();
+        super.onSaveInstanceState(savedState);
+
+        ArrayList<Movie> values = moviesAdapter.getValues();
+        savedState.putParcelableArrayList(AppConstants.MOVIE_VALUES, values);
     }
 
     /**
@@ -58,17 +61,24 @@ public class PopularMoviesFragment extends Fragment {
      */
     public void updateMovies(){
 
+        //updated view with new movies data
+        FetchMovieTask movieTask = new FetchMovieTask();
+        movieTask.execute(activeSortOrder);
+    }
+
+    public void onResume(){
+        super.onResume();
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Resources resources = getResources();
         String sortOrder = preferences.getString(resources.getString(R.string.pref_sort_key), "");
 
-        //use default if there's no sort key
-        if (sortOrder == null || sortOrder.length() == 0)
-            sortOrder = resources.getString(R.string.pref_sort_default);
+        if (!activeSortOrder.equals(sortOrder)){
+            FetchMovieTask movieTask = new FetchMovieTask();
+            movieTask.execute(sortOrder);
+            activeSortOrder = sortOrder;
+        }
 
-        //updated view with new movies data
-        FetchMovieTask movieTask = new FetchMovieTask();
-        movieTask.execute(sortOrder);
     }
 
     /**
@@ -98,6 +108,7 @@ public class PopularMoviesFragment extends Fragment {
 
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -112,9 +123,26 @@ public class PopularMoviesFragment extends Fragment {
 
             GridView gw = (GridView) view;
 
-            //create adapter handling display of poster images
-            moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie,
-                    new ArrayList<Movie>());
+            //check for active sort order
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            Resources resources = getResources();
+            activeSortOrder = preferences.getString(resources.getString(R.string.pref_sort_key), "");
+
+            //use default if there's no sort key
+            if (activeSortOrder == null || activeSortOrder.length() == 0)
+                activeSortOrder = resources.getString(R.string.pref_sort_default);
+
+            //check if view can be restored from savedInstance
+            if (savedInstanceState != null){
+                movies = savedInstanceState.getParcelableArrayList(AppConstants.MOVIE_VALUES);
+                moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie,
+                        movies);
+            } else {
+                movies = new ArrayList<>();
+                moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie,
+                        movies);
+                if (applicationRunStatus) updateMovies();
+            }
 
             gw.setAdapter(moviesAdapter);
 
@@ -125,17 +153,15 @@ public class PopularMoviesFragment extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                    DetailActivity detailActivity = new DetailActivity();
+                //create explicit intent
+                Intent seeMovieDetail = new Intent(getActivity(), DetailActivity.class);
 
-                    //create explicit intent
-                    Intent seeMovieDetail = new Intent(getActivity(), DetailActivity.class);
+                //get data for the movie user clicked on, data is contained within the clicked object
+                Movie movie = (Movie) adapterView.getItemAtPosition(i);
 
-                    //get data for the movie user clicked on, data is contained within the clicked object
-                    Movie movie = (Movie) adapterView.getItemAtPosition(i);
-
-                    //pass data to activity
-                    seeMovieDetail.putExtra(AppConstants.MOVIE_OBJECT_EXTRA, movie);
-                    startActivity(seeMovieDetail);
+                //pass data to activity
+                seeMovieDetail.putExtra(AppConstants.MOVIE_OBJECT_EXTRA, movie);
+                startActivity(seeMovieDetail);
                 }
             });
 
@@ -155,10 +181,12 @@ public class PopularMoviesFragment extends Fragment {
         protected void onPostExecute(Movie[] movieList) {
 
             if (movieList != null){
-
                 //after task completes and new data is returned, clear old data and update
                 moviesAdapter.clear();
                 moviesAdapter.addAll(movieList);
+            } else {
+                Toast appStart = Toast.makeText(getActivity(), AppConstants.CONNECTION_ERROR, Toast.LENGTH_LONG);
+                appStart.show();
             }
         }
 
@@ -170,6 +198,8 @@ public class PopularMoviesFragment extends Fragment {
 
                 //fetch data from server
                 String movieListJsonStr = moviesDAO.getMovieData(params);
+                if (movieListJsonStr == null)
+                    return null;
 
                 //get serialized data
                 return getMovieDataFromJson(movieListJsonStr);

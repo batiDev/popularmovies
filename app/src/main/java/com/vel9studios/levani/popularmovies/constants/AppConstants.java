@@ -28,8 +28,12 @@ public class AppConstants {
     public static final String VOTE_AVERAGE = "vote_average";
     public static final String POSTER_PATH = "poster_path";
 
+    //save state
+    public static final String MOVIE_VALUES = "movieValues";
+
     //General Messages
     public static final String API_KEY_WARNING = "Please set API Key";
     public static final String APP_START_ERROR = "Could not start application";
+    public static final String CONNECTION_ERROR = "Connection Error";
 
 }
