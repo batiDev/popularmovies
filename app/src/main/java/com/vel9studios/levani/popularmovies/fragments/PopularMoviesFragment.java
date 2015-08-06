@@ -66,8 +66,8 @@ public class PopularMoviesFragment extends Fragment {
         movieTask.execute(activeSortOrder);
     }
 
-    public void onResume(){
-        super.onResume();
+    public void onStart(){
+        super.onStart();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Resources resources = getResources();
@@ -99,8 +99,7 @@ public class PopularMoviesFragment extends Fragment {
 
             Toast appStart = Toast.makeText(getActivity(), AppConstants.APP_START_ERROR, Toast.LENGTH_LONG);
             appStart.show();
-
-        }else{
+        } else {
             containsNeededElements = true;
         }
 
@@ -135,12 +134,10 @@ public class PopularMoviesFragment extends Fragment {
             //check if view can be restored from savedInstance
             if (savedInstanceState != null){
                 movies = savedInstanceState.getParcelableArrayList(AppConstants.MOVIE_VALUES);
-                moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie,
-                        movies);
+                moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie, movies);
             } else {
                 movies = new ArrayList<>();
-                moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie,
-                        movies);
+                moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie, movies);
                 if (applicationRunStatus) updateMovies();
             }
 
@@ -153,16 +150,17 @@ public class PopularMoviesFragment extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                //create explicit intent
-                Intent seeMovieDetail = new Intent(getActivity(), DetailActivity.class);
+                    //create explicit intent
+                    Intent seeMovieDetail = new Intent(getActivity(), DetailActivity.class);
 
-                //get data for the movie user clicked on, data is contained within the clicked object
-                Movie movie = (Movie) adapterView.getItemAtPosition(i);
+                    //get data for the movie user clicked on, data is contained within the clicked object
+                    Movie movie = (Movie) adapterView.getItemAtPosition(i);
 
-                //pass data to activity
-                seeMovieDetail.putExtra(AppConstants.MOVIE_OBJECT_EXTRA, movie);
-                startActivity(seeMovieDetail);
+                    //pass data to activity
+                    seeMovieDetail.putExtra(AppConstants.MOVIE_OBJECT_EXTRA, movie);
+                    startActivity(seeMovieDetail);
                 }
+
             });
 
         } else {
@@ -195,7 +193,6 @@ public class PopularMoviesFragment extends Fragment {
             try{
 
                 MoviesDAO moviesDAO = new MoviesDAO();
-
                 //fetch data from server
                 String movieListJsonStr = moviesDAO.getMovieData(params);
                 if (movieListJsonStr == null)
@@ -205,7 +202,6 @@ public class PopularMoviesFragment extends Fragment {
                 return getMovieDataFromJson(movieListJsonStr);
 
             } catch (JSONException e) {
-
                 //it makes sense to return null here, since onPostExecute checks for null,
                 //but need to figure out what's possible with Exceptions within framework overall
                 //TODO: Exception handling
