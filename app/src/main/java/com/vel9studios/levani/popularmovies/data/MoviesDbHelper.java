@@ -20,9 +20,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
 
-/**
- * Manages a local database for weather data.
- */
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
@@ -39,8 +36,13 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
         // Create a table to hold movies.
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MoviesEntry.TABLE_NAME + " (" +
-                MoviesEntry._ID + " INTEGER PRIMARY KEY," +
-                MoviesEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL " +
+
+                MoviesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                MoviesEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, " +
+                MoviesEntry.COLUMN_IMAGE_PATH + " TEXT, " +
+                MoviesEntry.COLUMN_RELEASE_DATE + " TEXT, " +
+                MoviesEntry.COLUMN_OVERVIEW + " TEXT, " +
+                MoviesEntry.COLUMN_VOTE_AVERAGE + " TEXT" +
                 " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);

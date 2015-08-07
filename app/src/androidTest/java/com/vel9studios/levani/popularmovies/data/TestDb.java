@@ -124,7 +124,7 @@ public class TestDb extends AndroidTestCase {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         // Second Step (Weather): Create weather values
-        ContentValues movieValues = TestUtilities.createMovieValues(1);
+        ContentValues movieValues = TestUtilities.createMovieValues();
 
         // Third Step (Weather): Insert ContentValues into database and get a row ID back
         long weatherRowId = db.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, movieValues);
@@ -177,7 +177,7 @@ public class TestDb extends AndroidTestCase {
 
         // Second Step: Create ContentValues of what you want to insert
         // (you can use the createNorthPoleLocationValues if you wish)
-        ContentValues testValues = TestUtilities.createMovieValues(0);
+        ContentValues testValues = TestUtilities.createMovieValues();
 
         // Third Step: Insert ContentValues into database and get a row ID back
         long locationRowId;

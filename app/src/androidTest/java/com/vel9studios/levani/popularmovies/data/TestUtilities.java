@@ -45,10 +45,14 @@ public class TestUtilities extends AndroidTestCase {
     /*
         Students: Use this to create some default weather values for your database tests.
      */
-    static ContentValues createMovieValues(long locationRowId) {
+    static ContentValues createMovieValues() {
         ContentValues movieValues = new ContentValues();
 
         movieValues.put(MoviesEntry.COLUMN_MOVIE_TITLE, "A Woman Under the Influence");
+        movieValues.put(MoviesEntry.COLUMN_IMAGE_PATH, "some image path");
+        movieValues.put(MoviesEntry.COLUMN_RELEASE_DATE, "Yesterday");
+        movieValues.put(MoviesEntry.COLUMN_OVERVIEW, "Cassavates' best movie");
+        movieValues.put(MoviesEntry.COLUMN_VOTE_AVERAGE, "A Woman Under the Influence");
 
         return movieValues;
     }

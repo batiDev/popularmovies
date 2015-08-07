@@ -41,7 +41,6 @@ public class MoviesContract {
     // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
     // At least, let's hope not.  Don't be that dev, reader.  Don't be that dev.
     public static final String PATH_MOVIES = "movies";
-    public static final String PATH_MOVIES_FAVORITES = "movies_favorites";
 
     /* Inner class that defines the table contents of the location table */
     public static final class MoviesEntry implements BaseColumns {
@@ -51,13 +50,15 @@ public class MoviesContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
 
         // Table name
         public static final String TABLE_NAME = "movies";
 
         public static final String COLUMN_MOVIE_TITLE = "title";
+        public static final String COLUMN_IMAGE_PATH = "imagePath";
+        public static final String COLUMN_RELEASE_DATE = "releaseDate";
+        public static final String COLUMN_OVERVIEW = "overview";
+        public static final String COLUMN_VOTE_AVERAGE = "voteAverage";
 
         public static Uri buildMoviesUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
