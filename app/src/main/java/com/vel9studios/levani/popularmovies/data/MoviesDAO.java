@@ -40,7 +40,6 @@ public class MoviesDAO {
 
         try {
 
-            Log.i(LOG_TAG, "MAKING REQUEST");
             //check for API key
             if (AppConstantsPrivate.API_KEY.length() == 0)
                 Log.e(LOG_TAG, AppConstants.API_KEY_WARNING);
@@ -51,6 +50,8 @@ public class MoviesDAO {
                     .build();
 
             URL url = new URL(uri.toString());
+
+            Log.d(LOG_TAG, uri.toString());
 
             // Create the request and open connection to movie db
             urlConnection = (HttpURLConnection) url.openConnection();

@@ -112,7 +112,7 @@ public class TestDb extends AndroidTestCase {
         // tests. Why move it? We need the code to return the ID of the inserted location
         // and our testLocationTable can only return void because it's a test.
 
-        long locationRowId = insertMovie();
+//        long locationRowId = insertMovie();
 
         // Make sure we have a valid row ID.
         //assertFalse("Error: Location Not Inserted Correctly", locationRowId == -1L);

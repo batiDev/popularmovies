@@ -23,7 +23,7 @@ import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     static final String DATABASE_NAME = "movies.db";
 
@@ -38,11 +38,13 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MoviesEntry.TABLE_NAME + " (" +
 
                 MoviesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                MoviesEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, " +
+                MoviesEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
+                MoviesEntry.COLUMN_MOVIE_TITLE + " TEXT, " +
                 MoviesEntry.COLUMN_IMAGE_PATH + " TEXT, " +
                 MoviesEntry.COLUMN_RELEASE_DATE + " TEXT, " +
                 MoviesEntry.COLUMN_OVERVIEW + " TEXT, " +
-                MoviesEntry.COLUMN_VOTE_AVERAGE + " TEXT" +
+                MoviesEntry.COLUMN_VOTE_AVERAGE + " REAL, " +
+                MoviesEntry.COLUMN_POPULARITY + " REAL " +
                 " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);

@@ -36,4 +36,11 @@ public class AppConstants {
     public static final String APP_START_ERROR = "Could not start application";
     public static final String CONNECTION_ERROR = "Connection Error";
 
+    //sort orders
+    public static final String SORT_TYPE_POPULARITY = "popularity.desc";
+    public static final String SORT_TYPE_VOTE = "vote_average.desc";
+
+    //Grid View Item Limit
+    public static final String GRID_VIEW_ITEM_LIMIT = "20";
+
 }

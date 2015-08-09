@@ -22,7 +22,9 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
+
+import com.vel9studios.levani.popularmovies.constants.AppConstants;
+import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
 
 public class MoviesProvider extends ContentProvider {
 
@@ -32,10 +34,11 @@ public class MoviesProvider extends ContentProvider {
 
     //what are the URIs we need for the content provider
     static final int MOVIE = 100;
+    static final int MOVIE_DETAILS = 101;
 
-    //TODO: implement
-    static final int MOVIE_WITH_REVIEWS = 101;
-    static final int MOVIE_WITH_TRAILERS = 102;
+    private static final String sMovieIdSelection =
+            MoviesEntry.TABLE_NAME+
+                    "." + MoviesEntry.COLUMN_MOVIE_ID + " = ? ";
 
     /*
         Students: Here is where you need to create the UriMatcher. This UriMatcher will
@@ -55,7 +58,12 @@ public class MoviesProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIE);
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_DETAILS);
         return matcher;
+    }
+
+    public static String getMovieIdFromUri(Uri uri) {
+        return uri.getPathSegments().get(1);
     }
 
     /*
@@ -73,12 +81,13 @@ public class MoviesProvider extends ContentProvider {
 
         // Use the Uri Matcher to determine what kind of URI this is.
         final int match = sUriMatcher.match(uri);
-        Log.d("HELLO", String.valueOf(match));
         switch (match) {
 
             // Student: Uncomment and fill out these two cases
             case MOVIE:
                 return MoviesContract.MoviesEntry.CONTENT_TYPE;
+            case MOVIE_DETAILS:
+                return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -88,8 +97,6 @@ public class MoviesProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
 
-        // Here's the switch statement that, given a URI, will determine what kind of request it is,
-        // and query the database accordingly.
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
 
@@ -101,6 +108,21 @@ public class MoviesProvider extends ContentProvider {
                         projection,
                         selection,
                         selectionArgs,
+                        null,
+                        null,
+                        sortOrder,
+                        AppConstants.GRID_VIEW_ITEM_LIMIT
+                );
+                break;
+            }
+            case MOVIE_DETAILS:
+            {
+                String movieId = getMovieIdFromUri(uri);
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.MoviesEntry.TABLE_NAME,
+                        projection,
+                        sMovieIdSelection,
+                        new String[]{movieId},
                         null,
                         null,
                         sortOrder
@@ -126,7 +148,7 @@ public class MoviesProvider extends ContentProvider {
 
                 long _id = db.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = MoviesContract.MoviesEntry.buildMoviesUri(_id);
+                    returnUri = MoviesContract.MoviesEntry.buildMoviesUri();
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -191,10 +213,15 @@ public class MoviesProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, value);
-                        if (_id != -1) {
-                            returnCount++;
+
+                        long updateId = db.update(MoviesEntry.TABLE_NAME, value, sMovieIdSelection,
+                                new String[]{value.getAsInteger(MoviesEntry.COLUMN_MOVIE_ID).toString()});
+
+                        if (updateId == 0){
+                            long _id = db.insert(MoviesEntry.TABLE_NAME, null, value);
                         }
+
+                        returnCount++;
                     }
                     db.setTransactionSuccessful();
                 } finally {

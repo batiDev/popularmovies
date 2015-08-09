@@ -20,6 +20,8 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.vel9studios.levani.popularmovies.constants.AppConstants;
+
 /**
  * Defines table and column names for the weather database.
  */
@@ -50,18 +52,34 @@ public class MoviesContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
 
         // Table name
         public static final String TABLE_NAME = "movies";
 
+        public static final String COLUMN_MOVIE_ID = "movieId";
         public static final String COLUMN_MOVIE_TITLE = "title";
         public static final String COLUMN_IMAGE_PATH = "imagePath";
         public static final String COLUMN_RELEASE_DATE = "releaseDate";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_VOTE_AVERAGE = "voteAverage";
+        public static final String COLUMN_POPULARITY = "popularity";
 
-        public static Uri buildMoviesUri(long id) {
+        public static Uri buildMoviesUri() {
+            return BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES)
+                    .build();
+        }
+
+        public static Uri buildMoviesUriWithSortType(String sortType) {
+            return BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES)
+                    .appendQueryParameter(AppConstants.SORT_PARAM, sortType)
+                    .build();
+        }
+
+        public static Uri buildLocationUri(int id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
     }
 }

@@ -48,11 +48,13 @@ public class TestUtilities extends AndroidTestCase {
     static ContentValues createMovieValues() {
         ContentValues movieValues = new ContentValues();
 
+        movieValues.put(MoviesEntry.COLUMN_MOVIE_ID, 123);
         movieValues.put(MoviesEntry.COLUMN_MOVIE_TITLE, "A Woman Under the Influence");
         movieValues.put(MoviesEntry.COLUMN_IMAGE_PATH, "some image path");
         movieValues.put(MoviesEntry.COLUMN_RELEASE_DATE, "Yesterday");
         movieValues.put(MoviesEntry.COLUMN_OVERVIEW, "Cassavates' best movie");
-        movieValues.put(MoviesEntry.COLUMN_VOTE_AVERAGE, "A Woman Under the Influence");
+        movieValues.put(MoviesEntry.COLUMN_VOTE_AVERAGE, 7.2);
+        movieValues.put(MoviesEntry.COLUMN_POPULARITY, 1.0909);
 
         return movieValues;
     }

@@ -1,79 +1,82 @@
 package com.vel9studios.levani.popularmovies.fragments;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.activities.DetailActivity;
-import com.vel9studios.levani.popularmovies.beans.Movie;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.constants.AppConstantsPrivate;
 import com.vel9studios.levani.popularmovies.data.FetchMovieTask;
+import com.vel9studios.levani.popularmovies.data.MoviesContract;
+import com.vel9studios.levani.popularmovies.util.Utility;
 import com.vel9studios.levani.popularmovies.views.MovieAdapter;
-
-import java.util.ArrayList;
-
 
 /**
  * Primary fragment, declares primary business methods
  * Contains inner Async FetchMoviesTask
  */
-public class PopularMoviesFragment extends Fragment {
+public class PopularMoviesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = PopularMoviesFragment.class.getSimpleName();
-    private MovieAdapter moviesAdapter;
+    private MovieAdapter mMoviesAdapter;
     private Boolean applicationRunStatus;
-    private ArrayList<Movie> movies;
-    private String activeSortOrder = "";
+    private int mPosition = ListView.INVALID_POSITION;
+
+    private static final String SELECTED_KEY = "selected_position";
+    private GridView mGridView;
+    private static final int MOVIES_LOADER = 0;
+
+    private static final String[] MOVIE_COLUMNS = {
+            // In this case the id needs to be fully qualified with a table name, since
+            // the content provider joins the location & weather tables in the background
+            // (both have an _id column)
+            // On the one hand, that's annoying.  On the other, you can search the weather table
+            // using the location set by the user, which is only in the Location table.
+            // So the convenience is worth it.
+            MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID,
+
+            //get only the necessary data from local db
+            MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MoviesContract.MoviesEntry.COLUMN_IMAGE_PATH,
+    };
+
+    public static final int COLUMN_MOVIE_ID = 1;
+    public static final int COLUMN_IMAGE_PATH_ID = 2;
 
     public PopularMoviesFragment() {
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedState) {
-
-        super.onSaveInstanceState(savedState);
-
-        ArrayList<Movie> values = moviesAdapter.getValues();
-        savedState.putParcelableArrayList(AppConstants.MOVIE_VALUES, values);
-    }
-
     /**
-     * Fetches latest state of values in User Preferences
-     * Uses preference values for fetching fresh data each time view is displayed
-     *
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
      */
-    public void updateMovies(){
-
-        //updated view with new movies data
-        FetchMovieTask movieTask = new FetchMovieTask(getActivity());
-        movieTask.execute(activeSortOrder);
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri);
     }
 
-    public void onStart(){
-        super.onStart();
+    public void onSortOrderChanged(String sortType){
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Resources resources = getResources();
-        String sortOrder = preferences.getString(resources.getString(R.string.pref_sort_key), "");
-
-        if (!activeSortOrder.equals(sortOrder)){
-            FetchMovieTask movieTask = new FetchMovieTask(getActivity());
-            movieTask.execute(sortOrder);
-            activeSortOrder = sortOrder;
-        }
-
+        FetchMovieTask movieTask = new FetchMovieTask(getActivity());
+        movieTask.execute(sortType);
+        getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
     }
 
     /**
@@ -102,68 +105,97 @@ public class PopularMoviesFragment extends Fragment {
 
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MOVIES_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         //check for needed elements
+        Context context = getActivity();
         applicationRunStatus = appContainsAPIKey();
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         View view = rootView.findViewById(R.id.grid_item_movie_image);
 
-        if (view instanceof GridView && applicationRunStatus){
+        mMoviesAdapter = new MovieAdapter(context, null, 0);
 
-            GridView gw = (GridView) view;
+        mGridView = (GridView) view;
 
-            //check for active sort order
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            Resources resources = getResources();
-            activeSortOrder = preferences.getString(resources.getString(R.string.pref_sort_key), "");
-
-            //use default if there's no sort key
-            if (activeSortOrder == null || activeSortOrder.length() == 0)
-                activeSortOrder = resources.getString(R.string.pref_sort_default);
-
-            //check if view can be restored from savedInstance
-            if (savedInstanceState != null){
-                movies = savedInstanceState.getParcelableArrayList(AppConstants.MOVIE_VALUES);
-                moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie, movies);
-            } else {
-                movies = new ArrayList<>();
-                moviesAdapter = new MovieAdapter(getActivity(), R.layout.grid_item_movie, movies);
-                if (applicationRunStatus) updateMovies();
-            }
-
-            gw.setAdapter(moviesAdapter);
+        // The CursorAdapter will take data from our cursor and populate the ListView
+        // However, we cannot use FLAG_AUTO_REQUERY since it is deprecated, so we will end
+        // up with an empty list the first time we run.
+        mGridView.setAdapter(mMoviesAdapter);
 
             //set click-listener, called when user clicks an image
             //Core code from Udacity's "Developing Android Apps: Fundamentals"
-            gw.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                 @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
-                    //create explicit intent
-                    Intent seeMovieDetail = new Intent(getActivity(), DetailActivity.class);
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (cursor != null) {
+                    ((Callback) getActivity())
+                            .onItemSelected(MoviesContract.MoviesEntry.buildLocationUri(cursor.getInt(COLUMN_MOVIE_ID)));
 
-                    //get data for the movie user clicked on, data is contained within the clicked object
-                    Movie movie = (Movie) adapterView.getItemAtPosition(i);
-
-                    //pass data to activity
-                    seeMovieDetail.putExtra(AppConstants.MOVIE_OBJECT_EXTRA, movie);
-                    startActivity(seeMovieDetail);
+                    mPosition = position;
+                }
                 }
 
             });
 
-        } else {
-
-            Log.e(LOG_TAG, AppConstants.APP_START_ERROR);
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != GridView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+
+        Uri movieUri = MoviesContract.MoviesEntry.buildMoviesUri();
+        String sortOrder = Utility.getSortOrderQuery(getActivity());
+
+        return new CursorLoader(getActivity(),
+                movieUri,
+                MOVIE_COLUMNS,
+                null,
+                null,
+                sortOrder);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mMoviesAdapter.swapCursor(data);
+        if (mPosition != GridView.INVALID_POSITION) {
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            mGridView.smoothScrollToPosition(mPosition);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mMoviesAdapter.swapCursor(null);
     }
 
 }
