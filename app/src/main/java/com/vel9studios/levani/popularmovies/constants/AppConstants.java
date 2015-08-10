@@ -16,7 +16,9 @@ public class AppConstants {
     public static final String STRING_NO_DATA = "No data";
 
     //Query params - general
-    public static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie?";
+    public static final String API_BASE_DISCOVER_URL = "https://api.themoviedb.org/3/discover/movie?";
+    public static final String API_BASE_ITEM_URL = "https://api.themoviedb.org/3/movie/";
+    public static final String API_VIDEOS_PATH = "videos";
     public static final String SORT_PARAM = "sort_by";
     public static final String API_KEY_PARAM = "api_key";
 
@@ -42,5 +44,7 @@ public class AppConstants {
 
     //Grid View Item Limit
     public static final String GRID_VIEW_ITEM_LIMIT = "20";
+    public static final String DETAIL_VIEW_ITEM_LIMIT = "1";
 
+    public static final String DETAILFRAGMENT_TAG = "DFTAG";
 }

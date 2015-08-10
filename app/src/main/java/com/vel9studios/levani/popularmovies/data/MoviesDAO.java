@@ -25,10 +25,8 @@ public class MoviesDAO {
      *
      * Moved code outside of fragment to modularize flow more.
      *
-     * @param params String array of parameters
-     * @return Return response as String
      */
-    public String getMovieData (String[] params){
+    private String getJSON(Uri uri){
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -36,7 +34,7 @@ public class MoviesDAO {
         BufferedReader reader = null;
 
         // Will contain the raw JSON response as a string.
-        String movieListJsonStr = null;
+        String jsonData = null;
 
         try {
 
@@ -44,13 +42,7 @@ public class MoviesDAO {
             if (AppConstantsPrivate.API_KEY.length() == 0)
                 Log.e(LOG_TAG, AppConstants.API_KEY_WARNING);
 
-            Uri uri = Uri.parse(AppConstants.BASE_URL).buildUpon()
-                    .appendQueryParameter(AppConstants.SORT_PARAM, params[0])
-                    .appendQueryParameter(AppConstants.API_KEY_PARAM, AppConstantsPrivate.API_KEY)
-                    .build();
-
             URL url = new URL(uri.toString());
-
             Log.d(LOG_TAG, uri.toString());
 
             // Create the request and open connection to movie db
@@ -81,7 +73,7 @@ public class MoviesDAO {
                 return null;
             }
 
-            movieListJsonStr = buffer.toString();
+            jsonData = buffer.toString();
 
         } catch (IOException e) {
             Log.e(LOG_TAG,AppConstants.CONNECTION_ERROR);
@@ -100,6 +92,30 @@ public class MoviesDAO {
             }
         }
 
-        return movieListJsonStr;
+        return jsonData;
+
     }
+
+    public String getMovieData(String[] params) {
+
+        Uri uri = Uri.parse(AppConstants.API_BASE_DISCOVER_URL).buildUpon()
+                .appendQueryParameter(AppConstants.SORT_PARAM, params[0])
+                .appendQueryParameter(AppConstants.API_KEY_PARAM, AppConstantsPrivate.API_KEY)
+                .build();
+
+        return getJSON(uri);
+    };
+
+    public String getVideos(String movieId) {
+
+        Uri uri = Uri.parse(AppConstants.API_BASE_ITEM_URL).buildUpon()
+                .appendEncodedPath(movieId)
+                .appendEncodedPath(AppConstants.API_VIDEOS_PATH)
+                .appendQueryParameter(AppConstants.API_KEY_PARAM, AppConstantsPrivate.API_KEY)
+                .build();
+
+        return getJSON(uri);
+    };
+
+
 }

@@ -34,6 +34,7 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     private final String LOG_TAG = PopularMoviesFragment.class.getSimpleName();
     private MovieAdapter mMoviesAdapter;
     private Boolean applicationRunStatus;
+    private Boolean mShowFavorites = false;
     private int mPosition = ListView.INVALID_POSITION;
 
     private static final String SELECTED_KEY = "selected_position";
@@ -70,6 +71,12 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
          * DetailFragmentCallback for when an item has been selected.
          */
         public void onItemSelected(Uri dateUri);
+    }
+
+    public void onFavoritesChanged() {
+        mShowFavorites = !mShowFavorites;
+        Log.d(LOG_TAG, "Changing Favories");
+        getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
     }
 
     public void onSortOrderChanged(String sortType){
@@ -131,23 +138,23 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
         // up with an empty list the first time we run.
         mGridView.setAdapter(mMoviesAdapter);
 
-            //set click-listener, called when user clicks an image
-            //Core code from Udacity's "Developing Android Apps: Fundamentals"
-            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        //set click-listener, called when user clicks an image
+        //Core code from Udacity's "Developing Android Apps: Fundamentals"
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
-                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-                if (cursor != null) {
-                    ((Callback) getActivity())
-                            .onItemSelected(MoviesContract.MoviesEntry.buildLocationUri(cursor.getInt(COLUMN_MOVIE_ID)));
+            Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+            if (cursor != null) {
+                ((Callback) getActivity())
+                        .onItemSelected(MoviesContract.MoviesEntry.buildMovieItemUri(cursor.getInt(COLUMN_MOVIE_ID)));
 
-                    mPosition = position;
-                }
-                }
+                mPosition = position;
+            }
+            }
 
-            });
+        });
 
         if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
             // The listview probably hasn't even been populated yet.  Actually perform the
@@ -172,11 +179,16 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
 
-        Uri movieUri = MoviesContract.MoviesEntry.buildMoviesUri();
+        Uri moviesUri;
+        if (mShowFavorites)
+            moviesUri = MoviesContract.MoviesEntry.buildMovieFavoritesUri();
+        else
+            moviesUri = MoviesContract.MoviesEntry.buildMoviesUri();
+
         String sortOrder = Utility.getSortOrderQuery(getActivity());
 
         return new CursorLoader(getActivity(),
-                movieUri,
+                moviesUri,
                 MOVIE_COLUMNS,
                 null,
                 null,
@@ -184,8 +196,9 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mMoviesAdapter.swapCursor(data);
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        mMoviesAdapter.swapCursor(cursor);
+
         if (mPosition != GridView.INVALID_POSITION) {
             // If we don't need to restart the loader, and there's a desired position to restore
             // to, do so now.

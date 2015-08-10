@@ -19,6 +19,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
+import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
 
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
@@ -44,10 +45,26 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
                 MoviesEntry.COLUMN_RELEASE_DATE + " TEXT, " +
                 MoviesEntry.COLUMN_OVERVIEW + " TEXT, " +
                 MoviesEntry.COLUMN_VOTE_AVERAGE + " REAL, " +
-                MoviesEntry.COLUMN_POPULARITY + " REAL " +
+                MoviesEntry.COLUMN_POPULARITY + " REAL, " +
+                MoviesEntry.COLUMN_FAVORITE_IND + " TEXT " +
+
+                " );";
+
+        final String SQL_CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosEntry.TABLE_NAME + " (" +
+
+                VideosEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                VideosEntry.COLUMN_VIDEO_ID + " TEXT, " +
+                VideosEntry.COLUMN_VIDEO_KEY + " TEXT, " +
+                VideosEntry.COLUMN_VIDEO_NAME + " TEXT, " +
+                VideosEntry.COLUMN_VIDEO_SITE + " TEXT, " +
+                VideosEntry.COLUMN_VIDEO_SIZE + " REAL, " +
+                VideosEntry.COLUMN_TYPE + " TEXT, " +
+                MoviesEntry.COLUMN_MOVIE_ID + " TEXT " +
+
                 " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_VIDEOS_TABLE);
     }
 
     @Override

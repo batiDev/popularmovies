@@ -20,8 +20,6 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-import com.vel9studios.levani.popularmovies.constants.AppConstants;
-
 /**
  * Defines table and column names for the weather database.
  */
@@ -43,6 +41,8 @@ public class MoviesContract {
     // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
     // At least, let's hope not.  Don't be that dev, reader.  Don't be that dev.
     public static final String PATH_MOVIES = "movies";
+    public static final String PATH_VIDEOS = "videos";
+    public static final String PATH_FAVORITE = "favorite";
 
     /* Inner class that defines the table contents of the location table */
     public static final class MoviesEntry implements BaseColumns {
@@ -65,20 +65,55 @@ public class MoviesContract {
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_VOTE_AVERAGE = "voteAverage";
         public static final String COLUMN_POPULARITY = "popularity";
+        public static final String COLUMN_FAVORITE_IND = "favoriteInd";
 
         public static Uri buildMoviesUri() {
             return BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES)
                     .build();
         }
 
-        public static Uri buildMoviesUriWithSortType(String sortType) {
-            return BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES)
-                    .appendQueryParameter(AppConstants.SORT_PARAM, sortType)
+        public static Uri buildMovieFavoritesUri() {
+            return BASE_CONTENT_URI.buildUpon()
+                    .appendPath(PATH_MOVIES)
+                    .appendPath(PATH_FAVORITE)
                     .build();
         }
 
-        public static Uri buildLocationUri(int id) {
+        public static Uri buildMovieItemUri(int id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildFavoriteUri(String movieId, String addOrRemove){
+            return BASE_CONTENT_URI.buildUpon()
+                    .appendPath(PATH_MOVIES)
+                    .appendPath(PATH_FAVORITE)
+                    .appendPath(movieId)
+                    .appendQueryParameter("favoriteInd", addOrRemove)
+                    .build();
+        }
+
+    }
+
+    public static final class VideosEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_VIDEOS).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_VIDEOS;
+
+        // Table name
+        public static final String TABLE_NAME = "videos";
+
+        public static final String COLUMN_VIDEO_ID = "id";
+        public static final String COLUMN_VIDEO_KEY = "key";
+        public static final String COLUMN_VIDEO_NAME = "name";
+        public static final String COLUMN_VIDEO_SITE = "site";
+        public static final String COLUMN_VIDEO_SIZE = "size";
+        public static final String COLUMN_TYPE = "type";
+
+        public static Uri buildVideosUri(String movieId) {
+            return CONTENT_URI.buildUpon().appendPath(movieId).build();
         }
 
     }

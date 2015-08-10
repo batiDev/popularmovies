@@ -22,9 +22,11 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
+import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
 
 public class MoviesProvider extends ContentProvider {
 
@@ -32,13 +34,31 @@ public class MoviesProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MoviesDbHelper mOpenHelper;
 
+    private final String LOG_TAG = MoviesProvider.class.getSimpleName();
+
     //what are the URIs we need for the content provider
     static final int MOVIE = 100;
     static final int MOVIE_DETAILS = 101;
+    static final int VIDEOS = 102;
+    static final int MOVIE_ITEM_VIDEOS = 103;
+    static final int FAVORITE = 104;
+    static final int FAVORITES = 105;
 
     private static final String sMovieIdSelection =
             MoviesEntry.TABLE_NAME+
                     "." + MoviesEntry.COLUMN_MOVIE_ID + " = ? ";
+
+    private static final String sVideosVideoIdSelection =
+            VideosEntry.TABLE_NAME+
+                    "." + VideosEntry.COLUMN_VIDEO_ID + " = ? ";
+
+    private static final String sVideosMovieIdSelection =
+            VideosEntry.TABLE_NAME+
+                    "." + MoviesEntry.COLUMN_MOVIE_ID + " = ? ";
+
+    private static final String sFavoritesSelection =
+            MoviesEntry.TABLE_NAME+"." + MoviesEntry.COLUMN_FAVORITE_IND + " = ? ";
+
 
     /*
         Students: Here is where you need to create the UriMatcher. This UriMatcher will
@@ -58,12 +78,24 @@ public class MoviesProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIE);
+        matcher.addURI(authority, MoviesContract.PATH_VIDEOS, VIDEOS);
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_DETAILS);
+        matcher.addURI(authority, MoviesContract.PATH_VIDEOS + "/#", MOVIE_ITEM_VIDEOS);
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITE + "/#", FAVORITE);
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITE, FAVORITES);
         return matcher;
     }
 
     public static String getMovieIdFromUri(Uri uri) {
         return uri.getPathSegments().get(1);
+    }
+
+    public static String getMovieIdFromFavoriteUri(Uri uri) {
+        return uri.getPathSegments().get(2);
+    }
+
+    public static String getFavoriteActionFromUri(Uri uri) {
+        return uri.getQueryParameter("favoriteInd");
     }
 
     /*
@@ -88,6 +120,13 @@ public class MoviesProvider extends ContentProvider {
                 return MoviesContract.MoviesEntry.CONTENT_TYPE;
             case MOVIE_DETAILS:
                 return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
+            case MOVIE_ITEM_VIDEOS:
+                return MoviesContract.VideosEntry.CONTENT_TYPE;
+            case FAVORITE:
+                return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
+            case FAVORITES:
+                return MoviesContract.VideosEntry.CONTENT_TYPE;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -118,21 +157,62 @@ public class MoviesProvider extends ContentProvider {
             case MOVIE_DETAILS:
             {
                 String movieId = getMovieIdFromUri(uri);
+                selectionArgs = new String[]{movieId};
+
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MoviesContract.MoviesEntry.TABLE_NAME,
                         projection,
                         sMovieIdSelection,
-                        new String[]{movieId},
+                        selectionArgs,
                         null,
                         null,
-                        sortOrder
+                        sortOrder,
+                        AppConstants.DETAIL_VIEW_ITEM_LIMIT
                 );
                 break;
             }
+            case MOVIE_ITEM_VIDEOS:
+            {
+
+                String movieId = uri.getLastPathSegment();
+                selectionArgs = new String[]{movieId};
+
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.VideosEntry.TABLE_NAME,
+                        projection,
+                        sVideosMovieIdSelection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null
+                );
+
+                Log.d("GETTING TRAILERS", retCursor.getCount() + "" + movieId);
+                break;
+            }
+            case FAVORITES:
+            {
+                selectionArgs = new String[]{"Y"};
+
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.MoviesEntry.TABLE_NAME,
+                        projection,
+                        sFavoritesSelection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null
+                );
+
+                Log.d(LOG_TAG, "NUMBER OF FAVORITES " + retCursor.getCount());
+                break;
+            }
+
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
     }
@@ -186,14 +266,28 @@ public class MoviesProvider extends ContentProvider {
     public int update(
             Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        final int match = sUriMatcher.match(uri);
         int rowsUpdated;
 
-        switch (match) {
+        switch (sUriMatcher.match(uri)) {
             case MOVIE:
                 rowsUpdated = db.update(MoviesContract.MoviesEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
+            case FAVORITE:
+
+                String movieId = getMovieIdFromFavoriteUri(uri);
+                String favoriteFlag = getFavoriteActionFromUri(uri);
+
+                selectionArgs = new String[]{movieId};
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MoviesEntry.COLUMN_FAVORITE_IND, favoriteFlag);
+
+                rowsUpdated = db.update(MoviesContract.MoviesEntry.TABLE_NAME,
+                        contentValues,
+                        sMovieIdSelection,
+                        selectionArgs);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -209,6 +303,7 @@ public class MoviesProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case MOVIE:
+
                 db.beginTransaction();
                 int returnCount = 0;
                 try {
@@ -229,6 +324,30 @@ public class MoviesProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
+
+            case VIDEOS:
+
+                db.beginTransaction();
+                int returnCountVideos = 0;
+                try {
+                    for (ContentValues value : values) {
+
+                        long updateId = db.update(VideosEntry.TABLE_NAME, value, sVideosVideoIdSelection,
+                                new String[]{value.getAsString(VideosEntry.COLUMN_VIDEO_ID)});
+
+                        if (updateId == 0){
+                            long _id = db.insert(VideosEntry.TABLE_NAME, null, value);
+                            returnCountVideos++;
+                        }
+
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCountVideos;
+
             default:
                 return super.bulkInsert(uri, values);
         }

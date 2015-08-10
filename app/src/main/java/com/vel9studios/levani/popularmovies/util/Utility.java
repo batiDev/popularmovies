@@ -23,6 +23,9 @@ import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Utility {
 
     public static String getPreferredSortOrder(Context context) {
@@ -43,6 +46,34 @@ public class Utility {
             return MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE + " DESC";
 
         return null;
+    }
+
+    /**
+     * movie objects may contain fields which contain "something" but are actually null:
+     * e.g. response will read: "overview":null
+     * The presence of null means that get(key) won't actually return null,
+     * instead it returns a JSONObject with the value of null. The toString() then
+     * returns "null" string. This allows us to:
+     *
+     * a. actually check for null
+     * b. handle gracefully
+     *
+     * @param movieObj current JSONObject containing movie data
+     * @param key key with which to retrieve a portion of the movie JSONObject
+     * @return String value
+     * @throws JSONException
+     */
+
+    public static String parseMovieContents(JSONObject movieObj, String key) throws JSONException {
+
+        String content;
+        Object subMovieObj = movieObj.get(key);
+        if (subMovieObj != null && !subMovieObj.toString().equalsIgnoreCase(AppConstants.STRING_MOVIEDB_NULL))
+            content = subMovieObj.toString();
+        else
+            content = AppConstants.STRING_NO_DATA;
+
+        return content;
     }
 
 }

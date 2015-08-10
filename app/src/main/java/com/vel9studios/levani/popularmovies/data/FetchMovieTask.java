@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.beans.Movie;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
+import com.vel9studios.levani.popularmovies.util.Utility;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +36,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             String movieListJsonStr = moviesDAO.getMovieData(params);
 
             //get serialized data
-            getMovieDataFromJson(movieListJsonStr);
+            updateDatabaseWithMovies(movieListJsonStr);
 
         } catch (JSONException e) {
             //it makes sense to return null here, since onPostExecute checks for null,
@@ -47,70 +48,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
     }
 
     /**
-     * movie objects may contain fields which contain "something" but are actually null:
-     * e.g. response will read: "overview":null
-     * The presence of null means that get(key) won't actually return null,
-     * instead it returns a JSONObject with the value of null. The toString() then
-     * returns "null" string. This allows us to:
-     *
-     * a. actually check for null
-     * b. handle gracefully
-     *
-     * @param movieObj current JSONObject containing movie data
-     * @param key key with which to retrieve a portion of the movie JSONObject
-     * @return String value
-     * @throws JSONException
-     */
-    private String parseMovieContents(JSONObject movieObj, String key) throws JSONException {
-
-        String content;
-        Object subMovieObj = movieObj.get(key);
-        if (subMovieObj != null && !subMovieObj.toString().equalsIgnoreCase(AppConstants.STRING_MOVIEDB_NULL))
-            content = subMovieObj.toString();
-        else
-            content = AppConstants.STRING_NO_DATA;
-
-        return content;
-    }
-
-    /**
-     * Takes data from JSONObject and creates new Parcable movie bean.
-     *
-     * @param movieObj JSON object containing movie details
-     * @return populated Movie bean
-     * @throws JSONException
-     */
-    private Movie populateMovie(JSONObject movieObj) throws JSONException {
-
-        Movie movie = new Movie();
-
-        String title = parseMovieContents(movieObj, AppConstants.TITLE);
-        String partialPath = parseMovieContents(movieObj, AppConstants.POSTER_PATH);
-        String overview = parseMovieContents(movieObj, AppConstants.OVERVIEW);
-
-        String releaseDate = parseMovieContents(movieObj, AppConstants.RELEASE_DATE);
-
-        //Date string is (usually) in "YYYY-MM-DD" format, get just the year
-        if (!releaseDate.equals(AppConstants.STRING_NO_DATA) && releaseDate.length() > 4){
-            releaseDate = releaseDate.substring(0,4);
-            //year data may also just be "empty" check for it here
-        } else if (releaseDate.length() == 0) {
-            releaseDate = AppConstants.STRING_NO_DATA;
-        }
-
-        String voteAverage = parseMovieContents(movieObj, AppConstants.VOTE_AVERAGE);
-
-        //populate bean
-        movie.setTitle(title);
-        movie.setImagePath(partialPath);
-        movie.setOverview(overview);
-        movie.setReleaseDate(releaseDate);
-        movie.setVoteAverage(voteAverage);
-
-        return movie;
-    }
-
-    /**
      * Core code taken from Udacity's "Developing Android Apps: Fundamentals" course
      * Updated method return an array of Movie objects for use with Adapter
      *
@@ -118,7 +55,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
      * @return an array of populated Movie objects
      * @throws JSONException
      */
-    private Void getMovieDataFromJson(String moviesJsonStr)
+    private Void updateDatabaseWithMovies(String moviesJsonStr)
             throws JSONException {
 
         JSONObject moviesJson = new JSONObject(moviesJsonStr);
@@ -133,11 +70,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
             JSONObject movieObj = moviesList.getJSONObject(i);
 
-            String title = parseMovieContents(movieObj, AppConstants.TITLE);
-            String partialPath = parseMovieContents(movieObj, AppConstants.POSTER_PATH);
-            String overview = parseMovieContents(movieObj, AppConstants.OVERVIEW);
+            String title = Utility.parseMovieContents(movieObj, AppConstants.TITLE);
+            String partialPath = Utility.parseMovieContents(movieObj, AppConstants.POSTER_PATH);
+            String overview = Utility.parseMovieContents(movieObj, AppConstants.OVERVIEW);
 
-            String releaseDate = parseMovieContents(movieObj, AppConstants.RELEASE_DATE);
+            String releaseDate = Utility.parseMovieContents(movieObj, AppConstants.RELEASE_DATE);
 
             //Date string is (usually) in "YYYY-MM-DD" format, get just the year
             if (!releaseDate.equals(AppConstants.STRING_NO_DATA) && releaseDate.length() > 4){
@@ -173,7 +110,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             inserted = mContext.getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, cvArray);
         }
 
-        Log.d(LOG_TAG, "FetchMovieTask Complete. " + inserted + " Inserted");
+        Log.d(LOG_TAG, "FetchMovieTask Complete. " + inserted + " Inserted/Updated");
 
         return null;
     }

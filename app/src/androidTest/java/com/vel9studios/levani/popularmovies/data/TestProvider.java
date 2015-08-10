@@ -306,6 +306,7 @@ public class TestProvider extends AndroidTestCase {
         mContext.getContentResolver().unregisterContentObserver(movieObserver);
     }
 
+
     static private final int BULK_INSERT_RECORDS_TO_INSERT = 10;
     static ContentValues[] createBulkInsertMoviesValues() {
         ContentValues[] returnContentValues = new ContentValues[BULK_INSERT_RECORDS_TO_INSERT];
