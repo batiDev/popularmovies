@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class DetailActivity extends AppCompatActivity {
 
     private final String LOG_TAG = DetailActivity.class.getSimpleName();
+    Uri mUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +28,9 @@ public class DetailActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
+            Log.d(LOG_TAG, "savedInstance NULL");
             Bundle arguments = new Bundle();
+            mUri = getIntent().getData();
             arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
 
             DetailFragment fragment = new DetailFragment();
@@ -36,6 +39,9 @@ public class DetailActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.movie_detail_container, fragment)
                     .commit();
+        } else {
+            Log.d(LOG_TAG, "savedInstance NOT null");
+            mUri = (Uri) savedInstanceState.get(DetailFragment.DETAIL_URI);
         }
     }
 
@@ -51,9 +57,17 @@ public class DetailActivity extends AppCompatActivity {
         else
             newFavoriteInd = "Y";
 
-        Uri faovriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(movieId, newFavoriteInd);
-        int updated = this.getContentResolver().update(faovriteUri, null, null, null);
+        Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(movieId, newFavoriteInd);
+        int updated = this.getContentResolver().update(favoriteUri, null, null, null);
         Log.d("UPDATED", updated + " " + movieId + " " + newFavoriteInd);
+    }
+
+    public void launchReviews(View view)
+    {
+        String movieId = (String) view.getTag();
+        Uri reviewsUri = MoviesContract.ReviewsEntry.buildReviewsUri(movieId);
+        Intent intent = new Intent(this, ReviewActivity.class).setData(reviewsUri);
+        startActivity(intent);
     }
 
     @Override
@@ -77,4 +91,29 @@ public class DetailActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        // Always call the superclass so it can restore the view hierarchy
+        super.onRestoreInstanceState(savedInstanceState);
+
+
+        Log.d(LOG_TAG, "RESTORING?");
+        // Restore state members from saved instance
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Log.d(LOG_TAG, "SAVING STATE");
+        outState.putParcelable(DetailFragment.DETAIL_URI, mUri);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.d(LOG_TAG, "DESTROYING");
+    }
+
 }

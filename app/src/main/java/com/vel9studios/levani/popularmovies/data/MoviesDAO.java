@@ -117,5 +117,16 @@ public class MoviesDAO {
         return getJSON(uri);
     };
 
+    public String getReviews(String movieId) {
+
+        Uri uri = Uri.parse(AppConstants.API_BASE_ITEM_URL).buildUpon()
+                .appendEncodedPath(movieId)
+                .appendEncodedPath(AppConstants.API_REVIEWS_PATH)
+                .appendQueryParameter(AppConstants.API_KEY_PARAM, AppConstantsPrivate.API_KEY)
+                .build();
+
+        return getJSON(uri);
+    };
+
 
 }

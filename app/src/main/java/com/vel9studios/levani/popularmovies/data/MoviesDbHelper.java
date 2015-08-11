@@ -20,6 +20,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
+import com.vel9studios.levani.popularmovies.data.MoviesContract.ReviewsEntry;
 
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
@@ -39,6 +40,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MoviesEntry.TABLE_NAME + " (" +
 
                 MoviesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                //"relational" column
                 MoviesEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                 MoviesEntry.COLUMN_MOVIE_TITLE + " TEXT, " +
                 MoviesEntry.COLUMN_IMAGE_PATH + " TEXT, " +
@@ -59,12 +61,25 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
                 VideosEntry.COLUMN_VIDEO_SITE + " TEXT, " +
                 VideosEntry.COLUMN_VIDEO_SIZE + " REAL, " +
                 VideosEntry.COLUMN_TYPE + " TEXT, " +
+                //"relational" column
+                MoviesEntry.COLUMN_MOVIE_ID + " TEXT " +
+
+                " );";
+
+        final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsEntry.TABLE_NAME + " (" +
+
+                ReviewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                ReviewsEntry.COLUMN_REVIEW_ID + " TEXT, " +
+                ReviewsEntry.COLUMN_REVIEW_AUTHOR + " TEXT, " +
+                ReviewsEntry.COLUMN_REVIEW_CONTENT + " TEXT, " +
+                //"relational" column
                 MoviesEntry.COLUMN_MOVIE_ID + " TEXT " +
 
                 " );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_VIDEOS_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_REVIEWS_TABLE);
     }
 
     @Override
@@ -76,6 +91,8 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MoviesEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + VideosEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ReviewsEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

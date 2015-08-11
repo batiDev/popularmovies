@@ -19,6 +19,7 @@ public class AppConstants {
     public static final String API_BASE_DISCOVER_URL = "https://api.themoviedb.org/3/discover/movie?";
     public static final String API_BASE_ITEM_URL = "https://api.themoviedb.org/3/movie/";
     public static final String API_VIDEOS_PATH = "videos";
+    public static final String API_REVIEWS_PATH = "reviews";
     public static final String SORT_PARAM = "sort_by";
     public static final String API_KEY_PARAM = "api_key";
 

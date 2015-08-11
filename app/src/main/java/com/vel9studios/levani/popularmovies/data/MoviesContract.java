@@ -42,6 +42,7 @@ public class MoviesContract {
     // At least, let's hope not.  Don't be that dev, reader.  Don't be that dev.
     public static final String PATH_MOVIES = "movies";
     public static final String PATH_VIDEOS = "videos";
+    public static final String PATH_REVIEWS= "reviews";
     public static final String PATH_FAVORITE = "favorite";
 
     /* Inner class that defines the table contents of the location table */
@@ -113,6 +114,27 @@ public class MoviesContract {
         public static final String COLUMN_TYPE = "type";
 
         public static Uri buildVideosUri(String movieId) {
+            return CONTENT_URI.buildUpon().appendPath(movieId).build();
+        }
+
+    }
+
+    public static final class ReviewsEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEWS;
+
+        // Table name
+        public static final String TABLE_NAME = "reviews";
+
+        public static final String COLUMN_REVIEW_ID = "id";
+        public static final String COLUMN_REVIEW_AUTHOR = "author";
+        public static final String COLUMN_REVIEW_CONTENT = "content";
+
+        public static Uri buildReviewsUri(String movieId) {
             return CONTENT_URI.buildUpon().appendPath(movieId).build();
         }
 

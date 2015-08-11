@@ -27,6 +27,14 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity
+            android:name=".activities.ReviewActivity"
+            android:label="@string/title_reviews_detail"
+            android:parentActivityName=".activities.DetailActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.DetailActivity" />
+        </activity>
+        <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName=".activities.MainActivity" >

@@ -25,6 +25,7 @@ import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
 import com.vel9studios.levani.popularmovies.data.FetchVideosTask;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
+import com.vel9studios.levani.popularmovies.views.ReviewsAdapter;
 import com.vel9studios.levani.popularmovies.views.TrailerAdapter;
 
 import java.util.ArrayList;
@@ -42,14 +43,21 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     String mMovieId;
     String mFavoriteInd;
     TextView mFavorite;
+    TextView mReviews;
     TrailerAdapter mTrailerAdapter;
+    ReviewsAdapter mReviewsAdapter;
     ImageView mPoster;
     ListView mTrailerListView;
+    ListView mReviewsListView;
+
+    //Uris
     Uri mUri;
     Uri mVideosUri;
+    Uri mReviewsUri;
 
     private static final int DETAIL_LOADER = 0;
     private static final int VIDEO_LOADER = 1;
+    private static final int REVIEWS_LOADER = 2;
 
     private Movie movie;
     public DetailFragment() {
@@ -62,10 +70,19 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
 
         Bundle arguments = getArguments();
-        if (arguments != null) {
-            mUri = arguments.getParcelable(DETAIL_URI);
+
+        if (savedInstanceState == null) {
+
+            if (arguments != null) {
+                mUri = arguments.getParcelable(DETAIL_URI);
+                getVideoData();
+            }
+        } else {
+
+            mUri = (Uri) savedInstanceState.getParcelable(DETAIL_URI);
             getVideoData();
         }
+
 
         //set text elements
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -97,6 +114,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mMovieOverview = (TextView) rootView.findViewById(R.id.detail_movie_overview);
         mPoster = (ImageView) rootView.findViewById(R.id.detail_movie_image);
         mFavorite = (TextView) rootView.findViewById(R.id.detail_favorite);
+        mReviews = (TextView) rootView.findViewById(R.id.detail_reviews);
 
         return rootView;
     }
@@ -104,6 +122,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private void getVideoData(){
 
         String movieId = mUri.getLastPathSegment();
+
         FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity());
         fetchVideosTask.execute(movieId);
 
@@ -127,7 +146,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(mMovieId, favoriteInd);
         int updated = getActivity().getContentResolver().update(favoriteUri, null, null, null);
-        Log.d("UPDATED", updated + "");
     }
 
     public void onSortOrderChanged(String sortType){
@@ -188,6 +206,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 favoriteValues.add(mFavoriteInd);
                 mFavorite.setTag(favoriteValues);
 
+                mReviews.setTag(mMovieId);
+
                 String posterPath = cursor.getString(DetailFragmentConstants.COLUMN_IMAGE_PATH_ID);
                 String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.DETAIL_IMAGE_QUERY_WIDTH + posterPath;
                 Resources resources = getResources();
@@ -200,7 +220,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                         .error(R.drawable.unavailable_poster_black)
                         .into(mPoster);
 
-            } else if (currentLoader == VIDEO_LOADER){
+            } else if (currentLoader == VIDEO_LOADER) {
                 Log.d(LOG_TAG, "COUNT IN UI " + cursor.getCount());
                 mTrailerAdapter.swapCursor(cursor);
             }
@@ -211,5 +231,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == VIDEO_LOADER)
             mTrailerAdapter.swapCursor(null);
+
     }
+
 }

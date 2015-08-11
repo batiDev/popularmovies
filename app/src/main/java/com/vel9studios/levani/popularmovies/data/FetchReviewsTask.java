@@ -17,13 +17,13 @@ import java.util.Vector;
 /**
  * Created by levani on 8/6/15.
  */
-public class FetchVideosTask extends AsyncTask<String, Void, Void> {
+public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
 
-    private final String LOG_TAG = FetchVideosTask.class.getSimpleName();
+    private final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
     private final Context mContext;
     private String mMovieId;
 
-    public FetchVideosTask(Context context) {
+    public FetchReviewsTask(Context context) {
         mContext = context;
     }
 
@@ -34,7 +34,7 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
             mMovieId = params[0];
             MoviesDAO moviesDAO = new MoviesDAO();
             //fetch data from server
-            String videosJSONStr = moviesDAO.getVideos(mMovieId);
+            String videosJSONStr = moviesDAO.getReviews(mMovieId);
 
             //get serialized data
             getVideosDataFromJson(videosJSONStr);
@@ -71,24 +71,18 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
 
             Log.d(LOG_TAG, movieObj.toString());
 
-            String videoId = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_ID);
-            String videoKey = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_KEY);
-            String name = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_NAME);
-            String site = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_SITE);
-            Integer size = movieObj.getInt(MoviesContract.VideosEntry.COLUMN_VIDEO_SIZE);
-            String type = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_TYPE);
+            String reviewId = Utility.parseMovieContents(movieObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID);
+            String author = Utility.parseMovieContents(movieObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_AUTHOR);
+            String content = Utility.parseMovieContents(movieObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_CONTENT);
 
-            ContentValues videoValues = new ContentValues();
+            ContentValues reviewValues = new ContentValues();
 
-            videoValues.put(MoviesContract.VideosEntry.COLUMN_VIDEO_ID,videoId);
-            videoValues.put(MoviesContract.VideosEntry.COLUMN_VIDEO_KEY, videoKey);
-            videoValues.put(MoviesContract.VideosEntry.COLUMN_VIDEO_NAME, name);
-            videoValues.put(MoviesContract.VideosEntry.COLUMN_VIDEO_SITE, site);
-            videoValues.put(MoviesContract.VideosEntry.COLUMN_VIDEO_SIZE, size);
-            videoValues.put(MoviesContract.VideosEntry.COLUMN_TYPE, type);
-            videoValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, mMovieId);
+            reviewValues.put(MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID, reviewId);
+            reviewValues.put(MoviesContract.ReviewsEntry.COLUMN_REVIEW_AUTHOR, author);
+            reviewValues.put(MoviesContract.ReviewsEntry.COLUMN_REVIEW_CONTENT, content);
+            reviewValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, mMovieId);
 
-            cVVector.add(videoValues);
+            cVVector.add(reviewValues);
         }
 
         int inserted = 0;
@@ -96,10 +90,10 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
         if ( cVVector.size() > 0 ) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
-            inserted = mContext.getContentResolver().bulkInsert(MoviesContract.VideosEntry.CONTENT_URI, cvArray);
+            inserted = mContext.getContentResolver().bulkInsert(MoviesContract.ReviewsEntry.CONTENT_URI, cvArray);
         }
 
-        Log.d(LOG_TAG, "FetchVideosTask Complete. " + inserted + " Inserted");
+        Log.d(LOG_TAG, "FetchReviewsTask Complete. " + inserted + " Inserted");
 
         return null;
     }

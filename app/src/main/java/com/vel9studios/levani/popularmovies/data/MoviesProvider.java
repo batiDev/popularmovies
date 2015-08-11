@@ -27,6 +27,7 @@ import android.util.Log;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
+import com.vel9studios.levani.popularmovies.data.MoviesContract.ReviewsEntry;
 
 public class MoviesProvider extends ContentProvider {
 
@@ -43,6 +44,8 @@ public class MoviesProvider extends ContentProvider {
     static final int MOVIE_ITEM_VIDEOS = 103;
     static final int FAVORITE = 104;
     static final int FAVORITES = 105;
+    static final int SET_REVIEWS = 106;
+    static final int GET_REVIEWS = 107;
 
     private static final String sMovieIdSelection =
             MoviesEntry.TABLE_NAME+
@@ -56,8 +59,16 @@ public class MoviesProvider extends ContentProvider {
             VideosEntry.TABLE_NAME+
                     "." + MoviesEntry.COLUMN_MOVIE_ID + " = ? ";
 
+    private static final String sReviewsMovieIdSelection =
+            ReviewsEntry.TABLE_NAME+
+                    "." + MoviesEntry.COLUMN_MOVIE_ID + " = ? ";
+
     private static final String sFavoritesSelection =
             MoviesEntry.TABLE_NAME+"." + MoviesEntry.COLUMN_FAVORITE_IND + " = ? ";
+
+    private static final String sReviewsReviewIdSelection =
+            ReviewsEntry.TABLE_NAME+
+                    "." + ReviewsEntry.COLUMN_REVIEW_ID + " = ? ";
 
 
     /*
@@ -78,11 +89,20 @@ public class MoviesProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIE);
-        matcher.addURI(authority, MoviesContract.PATH_VIDEOS, VIDEOS);
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_DETAILS);
+
+        // videos
+        matcher.addURI(authority, MoviesContract.PATH_VIDEOS, VIDEOS);
         matcher.addURI(authority, MoviesContract.PATH_VIDEOS + "/#", MOVIE_ITEM_VIDEOS);
+
+        // favorites
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITE + "/#", FAVORITE);
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITE, FAVORITES);
+
+        // reviews
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS, SET_REVIEWS);
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", GET_REVIEWS);
+
         return matcher;
     }
 
@@ -126,6 +146,10 @@ public class MoviesProvider extends ContentProvider {
                 return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
             case FAVORITES:
                 return MoviesContract.VideosEntry.CONTENT_TYPE;
+            case SET_REVIEWS:
+                return MoviesContract.ReviewsEntry.CONTENT_TYPE;
+            case GET_REVIEWS:
+                return MoviesContract.ReviewsEntry.CONTENT_TYPE;
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -173,7 +197,6 @@ public class MoviesProvider extends ContentProvider {
             }
             case MOVIE_ITEM_VIDEOS:
             {
-
                 String movieId = uri.getLastPathSegment();
                 selectionArgs = new String[]{movieId};
 
@@ -207,7 +230,24 @@ public class MoviesProvider extends ContentProvider {
                 Log.d(LOG_TAG, "NUMBER OF FAVORITES " + retCursor.getCount());
                 break;
             }
+            case GET_REVIEWS:
+            {
+                String movieId = uri.getLastPathSegment();
+                selectionArgs = new String[]{movieId};
 
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.ReviewsEntry.TABLE_NAME,
+                        projection,
+                        sReviewsMovieIdSelection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null
+                );
+
+                Log.d("GETTING REVIEWS", retCursor.getCount() + "" + movieId);
+                break;
+            }
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -347,6 +387,29 @@ public class MoviesProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCountVideos;
+
+            case SET_REVIEWS:
+            {
+                db.beginTransaction();
+                int returnCountReviews = 0;
+                try {
+                    for (ContentValues value : values) {
+
+                        long updateId = db.update(ReviewsEntry.TABLE_NAME, value, sReviewsReviewIdSelection,
+                                new String[]{value.getAsString(ReviewsEntry.COLUMN_REVIEW_ID)});
+
+                        if (updateId == 0){
+                            long _id = db.insert(ReviewsEntry.TABLE_NAME, null, value);
+                            returnCountReviews++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCountReviews;
+            }
 
             default:
                 return super.bulkInsert(uri, values);
