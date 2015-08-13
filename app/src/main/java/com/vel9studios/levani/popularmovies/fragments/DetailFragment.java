@@ -20,12 +20,10 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.beans.Movie;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
 import com.vel9studios.levani.popularmovies.data.FetchVideosTask;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
-import com.vel9studios.levani.popularmovies.views.ReviewsAdapter;
 import com.vel9studios.levani.popularmovies.views.TrailerAdapter;
 
 import java.util.ArrayList;
@@ -36,6 +34,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     public static final String DETAIL_URI = "URI";
 
+    //views
     TextView mTitle;
     TextView mReleaseDate;
     TextView mVoteAverage;
@@ -44,22 +43,19 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     String mFavoriteInd;
     TextView mFavorite;
     TextView mReviews;
-    TrailerAdapter mTrailerAdapter;
-    ReviewsAdapter mReviewsAdapter;
     ImageView mPoster;
+
+    // video/trailer values
+    TrailerAdapter mTrailerAdapter;
     ListView mTrailerListView;
-    ListView mReviewsListView;
 
     //Uris
     Uri mUri;
     Uri mVideosUri;
-    Uri mReviewsUri;
 
     private static final int DETAIL_LOADER = 0;
     private static final int VIDEO_LOADER = 1;
-    private static final int REVIEWS_LOADER = 2;
 
-    private Movie movie;
     public DetailFragment() {
 
     }
@@ -70,19 +66,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
 
         Bundle arguments = getArguments();
-
-        if (savedInstanceState == null) {
-
-            if (arguments != null) {
-                mUri = arguments.getParcelable(DETAIL_URI);
-                getVideoData();
-            }
-        } else {
-
-            mUri = (Uri) savedInstanceState.getParcelable(DETAIL_URI);
+        if (arguments != null) {
+            mUri = arguments.getParcelable(DETAIL_URI);
             getVideoData();
         }
-
 
         //set text elements
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -101,8 +88,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
                     //http://stackoverflow.com/questions/574195/android-youtube-app-play-video-intent
                     String youtubeKey = cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_KEY);
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + youtubeKey));
-                    intent.putExtra("VIDEO_ID", youtubeKey);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(AppConstants.YOUTUBE_URI + youtubeKey));
+                    intent.putExtra(AppConstants.YOUTUBE_VIDEO_ID, youtubeKey);
                     startActivity(intent);
                 }
             }
@@ -136,25 +123,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         super.onActivityCreated(savedInstanceState);
     }
 
-    public void updateFavorite(){
-
-        String favoriteInd = "";
-        if (mFavoriteInd != null && mFavoriteInd.equals("Y"))
-            favoriteInd = "N";
-        else
-            favoriteInd = "Y";
-
-        Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(mMovieId, favoriteInd);
-        int updated = getActivity().getContentResolver().update(favoriteUri, null, null, null);
-    }
-
     public void onSortOrderChanged(String sortType){
 
         //TODO: figure out what makes sense here
         //getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 
-
+    public void onFavoriteToggle()
+    {
+        Log.d(LOG_TAG, "FAVORITE TOGGLED");
+        getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -194,19 +173,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             int currentLoader = loader.getId();
             if (currentLoader == DETAIL_LOADER){
 
-                mTitle.setText(cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_TITLE_ID));
+                // update details view
+                String movieTitle = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_TITLE_ID);
+                mTitle.setText(movieTitle);
                 mReleaseDate.setText(cursor.getString(DetailFragmentConstants.COLUMN_RELEASE_DATE_ID));
                 mVoteAverage.setText(String.valueOf(cursor.getDouble(DetailFragmentConstants.COLUMN_VOTE_AVERAGE_ID)));
                 mMovieOverview.setText(cursor.getString(DetailFragmentConstants.COLUMN_OVERVIEW_ID));
                 mMovieId = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_ID);
                 mFavoriteInd = cursor.getString(DetailFragmentConstants.COLUMN_FAVORITE_IND_ID);
-
-                ArrayList<String> favoriteValues = new ArrayList<>();
-                favoriteValues.add(mMovieId);
-                favoriteValues.add(mFavoriteInd);
-                mFavorite.setTag(favoriteValues);
-
-                mReviews.setTag(mMovieId);
 
                 String posterPath = cursor.getString(DetailFragmentConstants.COLUMN_IMAGE_PATH_ID);
                 String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.DETAIL_IMAGE_QUERY_WIDTH + posterPath;
@@ -220,8 +194,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                         .error(R.drawable.unavailable_poster_black)
                         .into(mPoster);
 
+                // gather values for saving movie to favorites
+                ArrayList<String> favoriteValues = new ArrayList<>();
+                favoriteValues.add(mMovieId);
+                favoriteValues.add(mFavoriteInd);
+                favoriteValues.add(movieTitle);
+                mFavorite.setTag(favoriteValues);
+
+                // set value for launching ReviewsActivity
+                mReviews.setTag(mMovieId);
+
             } else if (currentLoader == VIDEO_LOADER) {
-                Log.d(LOG_TAG, "COUNT IN UI " + cursor.getCount());
                 mTrailerAdapter.swapCursor(cursor);
             }
         }
@@ -231,7 +214,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == VIDEO_LOADER)
             mTrailerAdapter.swapCursor(null);
-
     }
 
 }

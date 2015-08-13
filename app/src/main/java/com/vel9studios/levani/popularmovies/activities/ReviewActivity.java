@@ -1,6 +1,7 @@
 package com.vel9studios.levani.popularmovies.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -14,6 +15,8 @@ import com.vel9studios.levani.popularmovies.fragments.ReviewsFragment;
 public class ReviewActivity extends AppCompatActivity {
 
     private final String LOG_TAG = ReviewActivity.class.getSimpleName();
+    public static final String REVEWS_URI = "URI";
+    Uri mUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +25,8 @@ public class ReviewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reviews);
         if (savedInstanceState == null) {
             Bundle arguments = new Bundle();
-            arguments.putParcelable(ReviewsFragment.REVIEW_URI, getIntent().getData());
+            mUri = getIntent().getData();
+            arguments.putParcelable(ReviewsFragment.REVIEWS_URI, mUri);
 
             ReviewsFragment fragment = new ReviewsFragment();
             fragment.setArguments(arguments);
@@ -31,6 +35,8 @@ public class ReviewActivity extends AppCompatActivity {
                     .add(R.id.movie_detail_container, fragment)
                     .commit();
         }
+
+
     }
 
     @Override

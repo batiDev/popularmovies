@@ -22,12 +22,11 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
-import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.ReviewsEntry;
+import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
 
 public class MoviesProvider extends ContentProvider {
 
@@ -37,16 +36,17 @@ public class MoviesProvider extends ContentProvider {
 
     private final String LOG_TAG = MoviesProvider.class.getSimpleName();
 
-    //what are the URIs we need for the content provider
-    static final int MOVIE = 100;
-    static final int MOVIE_DETAILS = 101;
+    // see URI matcher method for matching details
+    static final int MOVIES = 100;
+    static final int MOVIE_ITEM_DETAILS = 101;
     static final int VIDEOS = 102;
     static final int MOVIE_ITEM_VIDEOS = 103;
-    static final int FAVORITE = 104;
+    static final int MOVIE_ITEM_FAVORITE = 104;
     static final int FAVORITES = 105;
-    static final int SET_REVIEWS = 106;
-    static final int GET_REVIEWS = 107;
+    static final int REVIEWS = 106;
+    static final int MOVIE_ITEM_REVIEWS = 107;
 
+    // WHERE clauses
     private static final String sMovieIdSelection =
             MoviesEntry.TABLE_NAME+
                     "." + MoviesEntry.COLUMN_MOVIE_ID + " = ? ";
@@ -71,41 +71,37 @@ public class MoviesProvider extends ContentProvider {
                     "." + ReviewsEntry.COLUMN_REVIEW_ID + " = ? ";
 
 
-    /*
-        Students: Here is where you need to create the UriMatcher. This UriMatcher will
-        match each URI to the WEATHER, WEATHER_WITH_LOCATION, WEATHER_WITH_LOCATION_AND_DATE,
-        and LOCATION integer constants defined above.  You can test this by uncommenting the
-        testUriMatcher test within TestUriMatcher.
-     */
     static UriMatcher buildUriMatcher() {
-        // I know what you're thinking.  Why create a UriMatcher when you can use regular
-        // expressions instead?  Because you're not crazy, that's why.
 
-        // All paths added to the UriMatcher have a corresponding code to return when a match is
-        // found.  The code passed into the constructor represents the code to return for the root
-        // URI.  It's common to use NO_MATCH as the code for this case.
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MoviesContract.CONTENT_AUTHORITY;
 
-        // For each type of URI you want to add, create a corresponding code.
-        matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIE);
-        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_DETAILS);
+        // movies
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIES);
+
+        //
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_ITEM_DETAILS);
 
         // videos
         matcher.addURI(authority, MoviesContract.PATH_VIDEOS, VIDEOS);
         matcher.addURI(authority, MoviesContract.PATH_VIDEOS + "/#", MOVIE_ITEM_VIDEOS);
 
-        // favorites
-        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITE + "/#", FAVORITE);
+        // view favorites
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITE, FAVORITES);
 
+        // set movie as favorite or remove movie from favorites
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITE + "/#", MOVIE_ITEM_FAVORITE);
+
         // reviews
-        matcher.addURI(authority, MoviesContract.PATH_REVIEWS, SET_REVIEWS);
-        matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", GET_REVIEWS);
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS, REVIEWS);
+
+        // view reviews for movie
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", MOVIE_ITEM_REVIEWS);
 
         return matcher;
     }
 
+    /** URI PARSE HELPER METHODS **/
     public static String getMovieIdFromUri(Uri uri) {
         return uri.getPathSegments().get(1);
     }
@@ -115,13 +111,9 @@ public class MoviesProvider extends ContentProvider {
     }
 
     public static String getFavoriteActionFromUri(Uri uri) {
-        return uri.getQueryParameter("favoriteInd");
+        return uri.getQueryParameter(AppConstants.FAVORITE_IND);
     }
 
-    /*
-        Students: We've coded this for you.  We just create a new MoviesDbHelper for later use
-        here.
-     */
     @Override
     public boolean onCreate() {
         mOpenHelper = new MoviesDbHelper(getContext());
@@ -131,24 +123,23 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
 
-        // Use the Uri Matcher to determine what kind of URI this is.
+        // Determine what kind of URI this is.
         final int match = sUriMatcher.match(uri);
         switch (match) {
 
-            // Student: Uncomment and fill out these two cases
-            case MOVIE:
+            case MOVIES:
                 return MoviesContract.MoviesEntry.CONTENT_TYPE;
-            case MOVIE_DETAILS:
+            case MOVIE_ITEM_DETAILS:
                 return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
             case MOVIE_ITEM_VIDEOS:
                 return MoviesContract.VideosEntry.CONTENT_TYPE;
-            case FAVORITE:
+            case MOVIE_ITEM_FAVORITE:
                 return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
             case FAVORITES:
                 return MoviesContract.VideosEntry.CONTENT_TYPE;
-            case SET_REVIEWS:
+            case REVIEWS:
                 return MoviesContract.ReviewsEntry.CONTENT_TYPE;
-            case GET_REVIEWS:
+            case MOVIE_ITEM_REVIEWS:
                 return MoviesContract.ReviewsEntry.CONTENT_TYPE;
 
             default:
@@ -163,8 +154,8 @@ public class MoviesProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
 
-            // "movie"
-            case MOVIE:
+            // get movies, with appropriate sort order, used in main view
+            case MOVIES:
             {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MoviesContract.MoviesEntry.TABLE_NAME,
@@ -174,11 +165,13 @@ public class MoviesProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder,
+                        // set limit of results
                         AppConstants.GRID_VIEW_ITEM_LIMIT
                 );
                 break;
             }
-            case MOVIE_DETAILS:
+            // get movie details by movie ID
+            case MOVIE_ITEM_DETAILS:
             {
                 String movieId = getMovieIdFromUri(uri);
                 selectionArgs = new String[]{movieId};
@@ -195,6 +188,7 @@ public class MoviesProvider extends ContentProvider {
                 );
                 break;
             }
+            // get videos for given movie by using its movie ID to selected videos from the videos table
             case MOVIE_ITEM_VIDEOS:
             {
                 String movieId = uri.getLastPathSegment();
@@ -210,12 +204,12 @@ public class MoviesProvider extends ContentProvider {
                         null
                 );
 
-                Log.d("GETTING TRAILERS", retCursor.getCount() + "" + movieId);
                 break;
             }
+            //returns all movies marked as favorite
             case FAVORITES:
             {
-                selectionArgs = new String[]{"Y"};
+                selectionArgs = new String[]{AppConstants.Y_FLAG};
 
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MoviesContract.MoviesEntry.TABLE_NAME,
@@ -227,10 +221,10 @@ public class MoviesProvider extends ContentProvider {
                         null
                 );
 
-                Log.d(LOG_TAG, "NUMBER OF FAVORITES " + retCursor.getCount());
                 break;
             }
-            case GET_REVIEWS:
+            // returns reviews for given movie Id
+            case MOVIE_ITEM_REVIEWS:
             {
                 String movieId = uri.getLastPathSegment();
                 selectionArgs = new String[]{movieId};
@@ -245,7 +239,6 @@ public class MoviesProvider extends ContentProvider {
                         null
                 );
 
-                Log.d("GETTING REVIEWS", retCursor.getCount() + "" + movieId);
                 break;
             }
 
@@ -264,7 +257,8 @@ public class MoviesProvider extends ContentProvider {
         Uri returnUri;
 
         switch (match) {
-            case MOVIE: {
+            /** not currently in use **/
+            case MOVIES: {
 
                 long _id = db.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
@@ -288,7 +282,7 @@ public class MoviesProvider extends ContentProvider {
         // this makes delete all rows return the number of rows deleted
         if ( null == selection ) selection = "1";
         switch (match) {
-            case MOVIE:
+            case MOVIES:
                 rowsDeleted = db.delete(
                         MoviesContract.MoviesEntry.TABLE_NAME, selection, selectionArgs);
                 break;
@@ -309,11 +303,13 @@ public class MoviesProvider extends ContentProvider {
         int rowsUpdated;
 
         switch (sUriMatcher.match(uri)) {
-            case MOVIE:
+            /** not in use **/
+            case MOVIES:
                 rowsUpdated = db.update(MoviesContract.MoviesEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
-            case FAVORITE:
+            /** set movie as favorite **/
+            case MOVIE_ITEM_FAVORITE:
 
                 String movieId = getMovieIdFromFavoriteUri(uri);
                 String favoriteFlag = getFavoriteActionFromUri(uri);
@@ -337,20 +333,23 @@ public class MoviesProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+    /** this is a key function for the provider, modified to work more as an "UPSERT"
+     * if movie exists, update it with new data, if not, insert it**/
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
+        int returnCount = 0;
         switch (match) {
-            case MOVIE:
+            case MOVIES:
 
                 db.beginTransaction();
-                int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
 
                         long updateId = db.update(MoviesEntry.TABLE_NAME, value, sMovieIdSelection,
                                 new String[]{value.getAsInteger(MoviesEntry.COLUMN_MOVIE_ID).toString()});
+
 
                         if (updateId == 0){
                             long _id = db.insert(MoviesEntry.TABLE_NAME, null, value);
@@ -368,7 +367,6 @@ public class MoviesProvider extends ContentProvider {
             case VIDEOS:
 
                 db.beginTransaction();
-                int returnCountVideos = 0;
                 try {
                     for (ContentValues value : values) {
 
@@ -377,21 +375,20 @@ public class MoviesProvider extends ContentProvider {
 
                         if (updateId == 0){
                             long _id = db.insert(VideosEntry.TABLE_NAME, null, value);
-                            returnCountVideos++;
                         }
 
+                        returnCount++;
                     }
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
-                return returnCountVideos;
+                return returnCount;
 
-            case SET_REVIEWS:
+            case REVIEWS:
             {
                 db.beginTransaction();
-                int returnCountReviews = 0;
                 try {
                     for (ContentValues value : values) {
 
@@ -400,7 +397,7 @@ public class MoviesProvider extends ContentProvider {
 
                         if (updateId == 0){
                             long _id = db.insert(ReviewsEntry.TABLE_NAME, null, value);
-                            returnCountReviews++;
+                            returnCount++;
                         }
                     }
                     db.setTransactionSuccessful();
@@ -408,13 +405,15 @@ public class MoviesProvider extends ContentProvider {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
-                return returnCountReviews;
+                return returnCount;
             }
 
             default:
                 return super.bulkInsert(uri, values);
         }
     }
+
+    /**** CONTENT PROVIDER METHODS ****/
 
     // You do not need to call this method. This is a method specifically to assist the testing
     // framework in running smoothly. You can read more at:

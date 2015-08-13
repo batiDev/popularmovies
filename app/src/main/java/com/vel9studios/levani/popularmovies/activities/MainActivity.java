@@ -1,24 +1,28 @@
 package com.vel9studios.levani.popularmovies.activities;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
+import com.vel9studios.levani.popularmovies.data.MoviesContract;
 import com.vel9studios.levani.popularmovies.fragments.DetailFragment;
 import com.vel9studios.levani.popularmovies.fragments.PopularMoviesFragment;
+import com.vel9studios.levani.popularmovies.fragments.ReviewsFragment;
 import com.vel9studios.levani.popularmovies.util.Utility;
+
+import java.util.ArrayList;
 
 //Code from "Developing Android Apps: Fundamentals"/default code
 public class MainActivity extends AppCompatActivity implements PopularMoviesFragment.Callback {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
-
 
     private String mActiveSortType;
     private boolean mTwoPane;
@@ -75,8 +79,52 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
                 detailFragment.onSortOrderChanged(sortType);
             }
 
-
             mActiveSortType = sortType;
+        }
+
+    }
+
+    // launch Reviews activity
+    public void launchReviews(View view)
+    {
+        if (mTwoPane)
+        {
+            String movieId = (String) view.getTag();
+            Uri reviewsUri = MoviesContract.ReviewsEntry.buildReviewsUri(movieId);
+
+            Bundle args = new Bundle();
+            args.putParcelable(ReviewsFragment.REVIEWS_URI, reviewsUri);
+
+            ReviewsFragment fragment = new ReviewsFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment, AppConstants.REVIEWFRAGMENT_TAG)
+                    // add to backstrack so user can use the back button
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
+    public void setFavorite(View view)
+    {
+        ArrayList<String> favoriteValues = (ArrayList<String>) view.getTag();
+        String movieId = favoriteValues.get(0);
+        String favoriteInd = favoriteValues.get(1);
+        String movieTitle = favoriteValues.get(2);
+
+        String favoriteFlag = Utility.getFavoriteFlag(favoriteInd);
+        Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(movieId, favoriteFlag);
+        int updated = this.getContentResolver().update(favoriteUri, null, null, null);
+
+        if (updated == 1){
+            Utility.displayFavoritesMessage(favoriteFlag, movieTitle, this);
+        }
+
+        //TODO: make sure it works in two pane mode...
+        DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().findFragmentById(R.id.movie_detail_container);
+        if ( null != detailFragment) {
+            detailFragment.onFavoriteToggle();
         }
 
     }
@@ -99,8 +147,13 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
             PopularMoviesFragment popularMoviesFragment = (PopularMoviesFragment)getSupportFragmentManager().findFragmentById(R.id.popular_movies_fragment);
             if ( null != popularMoviesFragment ) {
-                popularMoviesFragment.onFavoritesChanged();
+                Boolean showFavorites = popularMoviesFragment.onFavoritesChanged();
+                Resources resources = getResources();
+                if (showFavorites) item.setTitle(resources.getString(R.string.action_favorites_hide));
+                    else if (!showFavorites) item.setTitle(resources.getString(R.string.action_favorites_show));
             }
+
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -125,7 +178,6 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
         } else {
 
             Intent intent = new Intent(this, DetailActivity.class).setData(contentUri);
-            Log.d(LOG_TAG, contentUri.toString());
             startActivity(intent);
         }
     }

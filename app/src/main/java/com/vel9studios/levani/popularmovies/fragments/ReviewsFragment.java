@@ -23,7 +23,7 @@ import com.vel9studios.levani.popularmovies.views.ReviewsAdapter;
 public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = ReviewsFragment.class.getSimpleName();
-    public static final String REVIEW_URI = "URI";
+    public static final String REVIEWS_URI = "URI";
 
     String mMovieId;
     TextView mReviews;
@@ -48,7 +48,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         Bundle arguments = getArguments();
         if (arguments != null) {
 
-            mReviewsUri = arguments.getParcelable(REVIEW_URI);
+            mReviewsUri = arguments.getParcelable(REVIEWS_URI);
             String movieId = mReviewsUri.getLastPathSegment();
 
             FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());

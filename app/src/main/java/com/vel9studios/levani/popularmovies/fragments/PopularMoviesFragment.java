@@ -73,10 +73,10 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
         public void onItemSelected(Uri dateUri);
     }
 
-    public void onFavoritesChanged() {
+    public Boolean onFavoritesChanged() {
         mShowFavorites = !mShowFavorites;
-        Log.d(LOG_TAG, "Changing Favories");
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
+        return mShowFavorites;
     }
 
     public void onSortOrderChanged(String sortType){

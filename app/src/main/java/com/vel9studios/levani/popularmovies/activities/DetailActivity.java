@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +11,7 @@ import android.view.View;
 import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 import com.vel9studios.levani.popularmovies.fragments.DetailFragment;
+import com.vel9studios.levani.popularmovies.util.Utility;
 
 import java.util.ArrayList;
 
@@ -28,7 +28,7 @@ public class DetailActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
-            Log.d(LOG_TAG, "savedInstance NULL");
+
             Bundle arguments = new Bundle();
             mUri = getIntent().getData();
             arguments.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
@@ -36,32 +36,40 @@ public class DetailActivity extends AppCompatActivity {
             DetailFragment fragment = new DetailFragment();
             fragment.setArguments(arguments);
 
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.movie_detail_container, fragment)
-                    .commit();
-        } else {
-            Log.d(LOG_TAG, "savedInstance NOT null");
-            mUri = (Uri) savedInstanceState.get(DetailFragment.DETAIL_URI);
+            if (mUri != null){
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.movie_detail_container, fragment)
+                        .commit();
+            }
         }
     }
+
+
 
     public void setFavorite(View view)
     {
         ArrayList<String> favoriteValues = (ArrayList<String>) view.getTag();
         String movieId = favoriteValues.get(0);
         String favoriteInd = favoriteValues.get(1);
+        String movieTitle = favoriteValues.get(2);
 
-        String newFavoriteInd = "";
-        if (favoriteInd != null && favoriteInd.equals("Y"))
-            newFavoriteInd = "N";
-        else
-            newFavoriteInd = "Y";
-
-        Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(movieId, newFavoriteInd);
+        String favoriteFlag = Utility.getFavoriteFlag(favoriteInd);
+        Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(movieId, favoriteFlag);
         int updated = this.getContentResolver().update(favoriteUri, null, null, null);
-        Log.d("UPDATED", updated + " " + movieId + " " + newFavoriteInd);
+
+        if (updated == 1){
+            Utility.displayFavoritesMessage(favoriteFlag, movieTitle, this);
+        }
+
+        //TODO: make sure it works in two pane mode...
+        DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().findFragmentById(R.id.movie_detail_container);
+        if ( null != detailFragment) {
+            detailFragment.onFavoriteToggle();
+        }
+
     }
 
+    // launch review activity from Detail Activity
     public void launchReviews(View view)
     {
         String movieId = (String) view.getTag();
@@ -90,30 +98,6 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        // Always call the superclass so it can restore the view hierarchy
-        super.onRestoreInstanceState(savedInstanceState);
-
-
-        Log.d(LOG_TAG, "RESTORING?");
-        // Restore state members from saved instance
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        Log.d(LOG_TAG, "SAVING STATE");
-        outState.putParcelable(DetailFragment.DETAIL_URI, mUri);
-    }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        Log.d(LOG_TAG, "DESTROYING");
     }
 
 }

@@ -18,6 +18,7 @@ package com.vel9studios.levani.popularmovies.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
@@ -48,6 +49,10 @@ public class Utility {
         return null;
     }
 
+    public static String getFavoriteFlag(String favoriteInd){
+        return (favoriteInd != null && favoriteInd.equals(AppConstants.Y_FLAG))? AppConstants.N_FLAG : AppConstants.Y_FLAG;
+    }
+
     /**
      * movie objects may contain fields which contain "something" but are actually null:
      * e.g. response will read: "overview":null
@@ -63,7 +68,6 @@ public class Utility {
      * @return String value
      * @throws JSONException
      */
-
     public static String parseMovieContents(JSONObject movieObj, String key) throws JSONException {
 
         String content;
@@ -74,6 +78,18 @@ public class Utility {
             content = AppConstants.STRING_NO_DATA;
 
         return content;
+    }
+
+    public static void displayFavoritesMessage(String favoriteFlag, String movieTitle, Context context){
+
+        String favoriteMessage = "";
+        if (favoriteFlag.equals(AppConstants.Y_FLAG))
+            favoriteMessage = movieTitle + " successfully added to favorites";
+        else if (favoriteFlag.equals(AppConstants.N_FLAG))
+            favoriteMessage = movieTitle + " removed from favorites";
+
+        Toast appStart = Toast.makeText(context, favoriteMessage, Toast.LENGTH_LONG);
+        appStart.show();
     }
 
 }

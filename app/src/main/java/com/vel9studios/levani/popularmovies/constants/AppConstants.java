@@ -48,4 +48,13 @@ public class AppConstants {
     public static final String DETAIL_VIEW_ITEM_LIMIT = "1";
 
     public static final String DETAILFRAGMENT_TAG = "DFTAG";
+    public static final String REVIEWFRAGMENT_TAG = "RFTAG";
+    public static final String Y_FLAG = "Y";
+    public static final String N_FLAG = "N";
+
+    //youTube values
+    public static final String YOUTUBE_VIDEO_ID = "VIDEO_ID";
+    public static final String YOUTUBE_URI = "vnd.youtube:";
+
+    public static final String FAVORITE_IND = "favoriteInd";
 }
