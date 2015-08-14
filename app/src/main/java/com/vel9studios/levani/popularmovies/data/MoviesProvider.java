@@ -46,6 +46,8 @@ public class MoviesProvider extends ContentProvider {
     static final int REVIEWS = 106;
     static final int MOVIE_ITEM_REVIEWS = 107;
 
+    static final int FIRST_MOVIE = 108;
+
     // WHERE clauses
     private static final String sMovieIdSelection =
             MoviesEntry.TABLE_NAME+
@@ -98,6 +100,9 @@ public class MoviesProvider extends ContentProvider {
         // view reviews for movie
         matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", MOVIE_ITEM_REVIEWS);
 
+        // first movie
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FIRST, FIRST_MOVIE);
+
         return matcher;
     }
 
@@ -141,6 +146,8 @@ public class MoviesProvider extends ContentProvider {
                 return MoviesContract.ReviewsEntry.CONTENT_TYPE;
             case MOVIE_ITEM_REVIEWS:
                 return MoviesContract.ReviewsEntry.CONTENT_TYPE;
+            case FIRST_MOVIE:
+                return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
 
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -239,6 +246,21 @@ public class MoviesProvider extends ContentProvider {
                         null
                 );
 
+                break;
+            }
+            case FIRST_MOVIE:
+            {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MoviesContract.MoviesEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder,
+                        // set limit of results
+                        AppConstants.DETAIL_VIEW_ITEM_LIMIT
+                );
                 break;
             }
 

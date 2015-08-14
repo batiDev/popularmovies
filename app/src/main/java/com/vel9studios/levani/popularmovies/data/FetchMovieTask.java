@@ -15,9 +15,6 @@ import org.json.JSONObject;
 
 import java.util.Vector;
 
-/**
- * Created by levani on 8/6/15.
- */
 public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
@@ -41,20 +38,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         } catch (JSONException e) {
             //it makes sense to return null here, since onPostExecute checks for null,
             //but need to figure out what's possible with Exceptions within framework overall
-            //TODO: Exception handling
             Log.e(LOG_TAG, e.getMessage(), e);
         }
         return null;
     }
 
-    /**
-     * Core code taken from Udacity's "Developing Android Apps: Fundamentals" course
-     * Updated method return an array of Movie objects for use with Adapter
-     *
-     * @param moviesJsonStr response from server as String
-     * @return an array of populated Movie objects
-     * @throws JSONException
-     */
     private Void updateDatabaseWithMovies(String moviesJsonStr)
             throws JSONException {
 

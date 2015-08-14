@@ -48,13 +48,6 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    /**
-     * Core code taken from Udacity's "Developing Android Apps: Fundamentals" course
-     * Updated method return an array of Movie objects for use with Adapter
-     *
-     * @return an array of populated Movie objects
-     * @throws JSONException
-     */
     private Void getVideosDataFromJson(String videosJsonStr)
             throws JSONException {
 

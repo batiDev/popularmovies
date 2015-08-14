@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +23,7 @@ import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
 import com.vel9studios.levani.popularmovies.data.FetchVideosTask;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
+import com.vel9studios.levani.popularmovies.data.MoviesDAO;
 import com.vel9studios.levani.popularmovies.views.TrailerAdapter;
 
 import java.util.ArrayList;
@@ -69,6 +69,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (arguments != null) {
             mUri = arguments.getParcelable(DETAIL_URI);
             getVideoData();
+        } else {
+            mUri = MoviesDAO.getFirstMovieId(getActivity());
         }
 
         //set text elements
@@ -125,13 +127,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     public void onSortOrderChanged(String sortType){
 
-        //TODO: figure out what makes sense here
-        //getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        mUri = MoviesDAO.getFirstMovieId(getActivity());
+        getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 
     public void onFavoriteToggle()
     {
-        Log.d(LOG_TAG, "FAVORITE TOGGLED");
         getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 

@@ -25,7 +25,6 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
     private final String LOG_TAG = ReviewsFragment.class.getSimpleName();
     public static final String REVIEWS_URI = "URI";
 
-    String mMovieId;
     TextView mReviews;
     ReviewsAdapter mReviewsAdapter;
     ListView mReviewsListView;
@@ -40,7 +39,6 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
-    //Build detail view of the movie
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -49,8 +47,12 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         if (arguments != null) {
 
             mReviewsUri = arguments.getParcelable(REVIEWS_URI);
+
+            // get movieId we want to view reviews for
             String movieId = mReviewsUri.getLastPathSegment();
 
+            // get the reviews
+            //TODO: this is probably called on screen rotation
             FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
             fetchReviewsTask.execute(movieId);
         }
@@ -58,9 +60,10 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         //set text elements
         View rootView = inflater.inflate(R.layout.fragment_reviews, container, false);
 
-        mReviewsAdapter = new ReviewsAdapter(getActivity(), null, 0);
         mReviewsListView = (ListView) rootView.findViewById(R.id.listview_reviews);
+        mReviewsAdapter = new ReviewsAdapter(getActivity(), null, 0);
         mReviewsListView.setAdapter(mReviewsAdapter);
+
         mReviews = (TextView) rootView.findViewById(R.id.detail_reviews);
 
         return rootView;

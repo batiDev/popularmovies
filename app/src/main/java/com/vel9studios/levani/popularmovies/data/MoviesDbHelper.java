@@ -18,12 +18,15 @@ package com.vel9studios.levani.popularmovies.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
-import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.ReviewsEntry;
+import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
 
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
+    private final String LOG_TAG = MoviesDAO.class.getSimpleName();
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 3;
 
@@ -36,8 +39,10 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
+        Log.d(LOG_TAG, "CREATING DATABASE");
+
         // Create a table to hold movies.
-        final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MoviesEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE IF NOT EXISTS " + MoviesEntry.TABLE_NAME + " (" +
 
                 MoviesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 //"relational" column
@@ -52,7 +57,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
                 " );";
 
-        final String SQL_CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_VIDEOS_TABLE = "CREATE TABLE IF NOT EXISTS " + VideosEntry.TABLE_NAME + " (" +
 
                 VideosEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 VideosEntry.COLUMN_VIDEO_ID + " TEXT, " +
@@ -66,7 +71,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
                 " );";
 
-        final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE IF NOT EXISTS " + ReviewsEntry.TABLE_NAME + " (" +
 
                 ReviewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 ReviewsEntry.COLUMN_REVIEW_ID + " TEXT, " +
@@ -88,7 +93,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
         // to simply to discard the data and start over
         // Note that this only fires if you change the version number for your database.
         // It does NOT depend on the version number for your application.
-        // If you want to update the schema without wiping data, commenting out the next 2 lines
+        // If you want to update the schema without wiping data, commenting out the next 3 lines
         // should be your top priority before modifying this method.
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MoviesEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + VideosEntry.TABLE_NAME);

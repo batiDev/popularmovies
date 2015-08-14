@@ -8,27 +8,20 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.constants.AppConstants;
-import com.vel9studios.levani.popularmovies.constants.AppConstantsPrivate;
 import com.vel9studios.levani.popularmovies.data.FetchMovieTask;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 import com.vel9studios.levani.popularmovies.util.Utility;
+import com.vel9studios.levani.popularmovies.validation.Validation;
 import com.vel9studios.levani.popularmovies.views.MovieAdapter;
 
-/**
- * Primary fragment, declares primary business methods
- * Contains inner Async FetchMoviesTask
- */
 public class PopularMoviesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = PopularMoviesFragment.class.getSimpleName();
@@ -42,14 +35,7 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     private static final int MOVIES_LOADER = 0;
 
     private static final String[] MOVIE_COLUMNS = {
-            // In this case the id needs to be fully qualified with a table name, since
-            // the content provider joins the location & weather tables in the background
-            // (both have an _id column)
-            // On the one hand, that's annoying.  On the other, you can search the weather table
-            // using the location set by the user, which is only in the Location table.
-            // So the convenience is worth it.
             MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID,
-
             //get only the necessary data from local db
             MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
             MoviesContract.MoviesEntry.COLUMN_IMAGE_PATH,
@@ -67,9 +53,6 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
      * selections.
      */
     public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         */
         public void onItemSelected(Uri dateUri);
     }
 
@@ -86,32 +69,6 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
     }
 
-    /**
-     * Set up method for checking for things which are absolutely needed for app to work.
-     * TODO: Move into a validation class
-     * @return true if app can go on
-     */
-    public Boolean appContainsAPIKey(){
-
-        Boolean containsNeededElements = false;
-
-        //check for API key
-        if (AppConstantsPrivate.API_KEY.length() == 0){
-
-            Log.e(LOG_TAG, AppConstants.API_KEY_WARNING);
-            Toast apiWarning = Toast.makeText(getActivity(), AppConstants.API_KEY_WARNING, Toast.LENGTH_LONG);
-            apiWarning.show();
-
-            Toast appStart = Toast.makeText(getActivity(), AppConstants.APP_START_ERROR, Toast.LENGTH_LONG);
-            appStart.show();
-        } else {
-            containsNeededElements = true;
-        }
-
-        return containsNeededElements;
-
-    }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MOVIES_LOADER, null, this);
@@ -124,42 +81,40 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
 
         //check for needed elements
         Context context = getActivity();
-        applicationRunStatus = appContainsAPIKey();
+        applicationRunStatus = Validation.appContainsAPIKey(context);
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         View view = rootView.findViewById(R.id.grid_item_movie_image);
 
-        mMoviesAdapter = new MovieAdapter(context, null, 0);
+        if (applicationRunStatus){
 
-        mGridView = (GridView) view;
+            mMoviesAdapter = new MovieAdapter(context, null, 0);
+            mGridView = (GridView) view;
 
-        // The CursorAdapter will take data from our cursor and populate the ListView
-        // However, we cannot use FLAG_AUTO_REQUERY since it is deprecated, so we will end
-        // up with an empty list the first time we run.
-        mGridView.setAdapter(mMoviesAdapter);
+            mGridView.setAdapter(mMoviesAdapter);
 
-        //set click-listener, called when user clicks an image
-        //Core code from Udacity's "Developing Android Apps: Fundamentals"
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            //set click-listener, called when user clicks an image
+            //Core code from Udacity's "Developing Android Apps: Fundamentals"
+            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
-            Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-            if (cursor != null) {
-                ((Callback) getActivity())
-                        .onItemSelected(MoviesContract.MoviesEntry.buildMovieItemUri(cursor.getInt(COLUMN_MOVIE_ID)));
+                    Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                    if (cursor != null) {
+                        ((Callback) getActivity())
+                                .onItemSelected(MoviesContract.MoviesEntry.buildMovieItemUri(cursor.getInt(COLUMN_MOVIE_ID)));
 
-                mPosition = position;
+                        mPosition = position;
+                    }
+                }
+
+            });
+
+            if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+                mPosition = savedInstanceState.getInt(SELECTED_KEY);
             }
-            }
 
-        });
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-            // The listview probably hasn't even been populated yet.  Actually perform the
-            // swapout in onLoadFinished.
-            mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
 
         return rootView;
@@ -170,6 +125,7 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
         // When tablets rotate, the currently selected list item needs to be saved.
         // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
         // so check for that before storing.
+        // Core code from Udacity's "Developing Android Apps: Fundamentals"
         if (mPosition != GridView.INVALID_POSITION) {
             outState.putInt(SELECTED_KEY, mPosition);
         }

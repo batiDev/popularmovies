@@ -42,19 +42,11 @@ public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
         } catch (JSONException e) {
             //it makes sense to return null here, since onPostExecute checks for null,
             //but need to figure out what's possible with Exceptions within framework overall
-            //TODO: Exception handling
             Log.e(LOG_TAG, e.getMessage(), e);
         }
         return null;
     }
 
-    /**
-     * Core code taken from Udacity's "Developing Android Apps: Fundamentals" course
-     * Updated method return an array of Movie objects for use with Adapter
-     *
-     * @return an array of populated Movie objects
-     * @throws JSONException
-     */
     private Void getVideosDataFromJson(String videosJsonStr)
             throws JSONException {
 

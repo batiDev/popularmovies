@@ -40,8 +40,6 @@ public class SettingsFragment extends PreferenceFragment
                         .getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
 
-//        PopularMoviesFragment moviesFragment = new PopularMoviesFragment();
-//        moviesFragment.updateMovies();
     }
 
     @Override

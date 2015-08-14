@@ -44,8 +44,6 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-
-
     public void setFavorite(View view)
     {
         ArrayList<String> favoriteValues = (ArrayList<String>) view.getTag();
@@ -66,7 +64,6 @@ public class DetailActivity extends AppCompatActivity {
         if ( null != detailFragment) {
             detailFragment.onFavoriteToggle();
         }
-
     }
 
     // launch review activity from Detail Activity
