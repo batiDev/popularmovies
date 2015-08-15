@@ -40,10 +40,9 @@ public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
             getVideosDataFromJson(videosJSONStr);
 
         } catch (JSONException e) {
-            //it makes sense to return null here, since onPostExecute checks for null,
-            //but need to figure out what's possible with Exceptions within framework overall
             Log.e(LOG_TAG, e.getMessage(), e);
         }
+
         return null;
     }
 

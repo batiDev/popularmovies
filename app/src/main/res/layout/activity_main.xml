@@ -1,11 +1,11 @@
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/popular_movies_fragment"
-    android:name="com.vel9studios.levani.popularmovies.fragments.PopularMoviesFragment"
+    android:name="com.vel9studios.levani.popularmovies.fragment.PopularMoviesFragment"
     tools:layout="@layout/fragment_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.vel9studios.levani.popularmovies.fragments.PopularMoviesFragment"
+    tools:context="com.vel9studios.levani.popularmovies.fragment.PopularMoviesFragment"
     />
 
 

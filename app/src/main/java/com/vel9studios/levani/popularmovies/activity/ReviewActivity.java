@@ -1,4 +1,4 @@
-package com.vel9studios.levani.popularmovies.activities;
+package com.vel9studios.levani.popularmovies.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.fragments.ReviewsFragment;
+import com.vel9studios.levani.popularmovies.fragment.ReviewsFragment;
 
 
 //Code from "Developing Android Apps: Fundamentals"/default code

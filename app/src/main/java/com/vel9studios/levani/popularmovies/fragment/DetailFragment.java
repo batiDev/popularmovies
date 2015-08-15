@@ -1,4 +1,4 @@
-package com.vel9studios.levani.popularmovies.fragments;
+package com.vel9studios.levani.popularmovies.fragment;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -23,7 +23,7 @@ import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
 import com.vel9studios.levani.popularmovies.data.FetchVideosTask;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
-import com.vel9studios.levani.popularmovies.data.MoviesDAO;
+import com.vel9studios.levani.popularmovies.util.Utility;
 import com.vel9studios.levani.popularmovies.views.TrailerAdapter;
 
 import java.util.ArrayList;
@@ -34,12 +34,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     public static final String DETAIL_URI = "URI";
 
+    // id for the movie in detail view, and the id used to fetch videos and reviews
+    String mMovieId;
+
     //views
     TextView mTitle;
     TextView mReleaseDate;
     TextView mVoteAverage;
     TextView mMovieOverview;
-    String mMovieId;
     String mFavoriteInd;
     TextView mFavorite;
     TextView mReviews;
@@ -68,9 +70,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(DETAIL_URI);
-            getVideoData();
-        } else {
-            mUri = MoviesDAO.getFirstMovieId(getActivity());
+        }
+
+        if (savedInstanceState != null){
+            // Save the user's current game state
+            mMovieId = savedInstanceState.getString("movieId");
         }
 
         //set text elements
@@ -108,26 +112,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return rootView;
     }
 
-    private void getVideoData(){
-
-        String movieId = mUri.getLastPathSegment();
-
-        FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity());
-        fetchVideosTask.execute(movieId);
-
-        mVideosUri = MoviesContract.VideosEntry.buildVideosUri(movieId);
-    }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-        getLoaderManager().initLoader(VIDEO_LOADER, null, this);
+
         super.onActivityCreated(savedInstanceState);
     }
 
     public void onSortOrderChanged(String sortType){
 
-        mUri = MoviesDAO.getFirstMovieId(getActivity());
+        mUri = null;
         getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 
@@ -139,15 +133,26 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        if (id == DETAIL_LOADER && mUri != null){
+        if (id == DETAIL_LOADER){
+
+            Uri moveDetailUri;
+
+            // if mUri is available, use it, else display details for first movie in db for given sort criteria
+            String sortOrder = null;
+            if (mUri != null)
+                moveDetailUri =  mUri;
+            else{
+                sortOrder = Utility.getSortOrderQuery(getActivity());
+                moveDetailUri = MoviesContract.MoviesEntry.buildFirstMovieUri();
+            }
 
             return new CursorLoader(
                     getActivity(),
-                    mUri,
+                    moveDetailUri,
                     DetailFragmentConstants.MOVIE_DETAIL_COLUMNS,
                     null,
                     null,
-                    null
+                    sortOrder
             );
         }
 
@@ -180,7 +185,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 mReleaseDate.setText(cursor.getString(DetailFragmentConstants.COLUMN_RELEASE_DATE_ID));
                 mVoteAverage.setText(String.valueOf(cursor.getDouble(DetailFragmentConstants.COLUMN_VOTE_AVERAGE_ID)));
                 mMovieOverview.setText(cursor.getString(DetailFragmentConstants.COLUMN_OVERVIEW_ID));
-                mMovieId = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_ID);
+
+                String currentMovieId = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_ID);
+
+                // if displaying details for a new movie, fetch videos
+                if (mMovieId == null || !mMovieId.equals(currentMovieId) )
+                    getVideos(currentMovieId);
+
+                mMovieId = currentMovieId;
+
                 mFavoriteInd = cursor.getString(DetailFragmentConstants.COLUMN_FAVORITE_IND_ID);
 
                 String posterPath = cursor.getString(DetailFragmentConstants.COLUMN_IMAGE_PATH_ID);
@@ -209,6 +222,23 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 mTrailerAdapter.swapCursor(cursor);
             }
         }
+    }
+
+    private void getVideos(String currentMovieId) {
+
+        FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity());
+        fetchVideosTask.execute(currentMovieId);
+        mVideosUri = MoviesContract.VideosEntry.buildVideosUri(currentMovieId);
+        getLoaderManager().initLoader(VIDEO_LOADER, null, this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+        savedInstanceState.putString("movieId", mMovieId);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override

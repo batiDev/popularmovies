@@ -40,7 +40,6 @@ public class ReviewsAdapter extends CursorAdapter {
 
         // Read date from cursor
         TextView reviewContent = (TextView) view.findViewById(R.id.list_item_review_content);
-        Log.d(LOG_TAG, "SETTING REVIEW " + cursor.getString(DetailFragmentConstants.COLUMN_REVIEW_CONTENT_ID));
         reviewContent.setText(cursor.getString(DetailFragmentConstants.COLUMN_REVIEW_CONTENT_ID));
     }
 

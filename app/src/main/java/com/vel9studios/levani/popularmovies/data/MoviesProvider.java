@@ -258,7 +258,7 @@ public class MoviesProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder,
-                        // set limit of results
+                        // set limit of results to 1
                         AppConstants.DETAIL_VIEW_ITEM_LIMIT
                 );
                 break;

@@ -1,4 +1,4 @@
-package com.vel9studios.levani.popularmovies.fragments;
+package com.vel9studios.levani.popularmovies.fragment;
 
 import android.os.Bundle;
 import android.preference.ListPreference;

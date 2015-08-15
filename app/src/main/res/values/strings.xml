@@ -14,4 +14,9 @@
 
     <!-- detail view -->
     <string name="rating">Rating</string>
+
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">levani.vel9studios.com</string>
+    <string name="content_authority">com.vel9studios.levani.popularmovies</string>
+
 </resources>

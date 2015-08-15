@@ -1,9 +1,9 @@
-package com.vel9studios.levani.popularmovies.activities;
+package com.vel9studios.levani.popularmovies.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.vel9studios.levani.popularmovies.fragments.SettingsFragment;
+import com.vel9studios.levani.popularmovies.fragment.SettingsFragment;
 
 /**
  * http://developer.android.com/guide/topics/ui/settings.html#Fragment

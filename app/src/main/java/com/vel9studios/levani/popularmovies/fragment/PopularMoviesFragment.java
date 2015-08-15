@@ -1,4 +1,4 @@
-package com.vel9studios.levani.popularmovies.fragments;
+package com.vel9studios.levani.popularmovies.fragment;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,8 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.data.FetchMovieTask;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
+import com.vel9studios.levani.popularmovies.sync.MoviesSyncAdapter;
 import com.vel9studios.levani.popularmovies.util.Utility;
 import com.vel9studios.levani.popularmovies.validation.Validation;
 import com.vel9studios.levani.popularmovies.views.MovieAdapter;
@@ -53,7 +54,7 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
      * selections.
      */
     public interface Callback {
-        public void onItemSelected(Uri dateUri);
+        void onItemSelected(Uri dateUri);
     }
 
     public Boolean onFavoritesChanged() {
@@ -64,8 +65,9 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
 
     public void onSortOrderChanged(String sortType){
 
-        FetchMovieTask movieTask = new FetchMovieTask(getActivity());
-        movieTask.execute(sortType);
+        Log.d(LOG_TAG, "sync immediately");
+        MoviesSyncAdapter.syncImmediately(getActivity());
+
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
     }
 

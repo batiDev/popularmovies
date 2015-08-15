@@ -1,4 +1,4 @@
-package com.vel9studios.levani.popularmovies.fragments;
+package com.vel9studios.levani.popularmovies.fragment;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -14,7 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.beans.Movie;
+import com.vel9studios.levani.popularmovies.bean.Movie;
 import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
 import com.vel9studios.levani.popularmovies.data.FetchReviewsTask;
 import com.vel9studios.levani.popularmovies.views.ReviewsAdapter;
@@ -52,9 +52,12 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
             String movieId = mReviewsUri.getLastPathSegment();
 
             // get the reviews
-            //TODO: this is probably called on screen rotation
-            FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
-            fetchReviewsTask.execute(movieId);
+            if (savedInstanceState == null){
+
+                FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
+                fetchReviewsTask.execute(movieId);
+            }
+
         }
 
         //set text elements

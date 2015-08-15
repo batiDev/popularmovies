@@ -40,9 +40,6 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
             getVideosDataFromJson(videosJSONStr);
 
         } catch (JSONException e) {
-            //it makes sense to return null here, since onPostExecute checks for null,
-            //but need to figure out what's possible with Exceptions within framework overall
-            //TODO: Exception handling
             Log.e(LOG_TAG, e.getMessage(), e);
         }
         return null;
@@ -61,8 +58,6 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
         for(int i = 0; i < videoListLength; i++) {
 
             JSONObject movieObj = videoList.getJSONObject(i);
-
-            Log.d(LOG_TAG, movieObj.toString());
 
             String videoId = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_ID);
             String videoKey = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_KEY);

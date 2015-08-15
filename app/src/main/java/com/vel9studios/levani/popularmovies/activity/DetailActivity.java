@@ -1,4 +1,4 @@
-package com.vel9studios.levani.popularmovies.activities;
+package com.vel9studios.levani.popularmovies.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -10,7 +10,7 @@ import android.view.View;
 
 import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
-import com.vel9studios.levani.popularmovies.fragments.DetailFragment;
+import com.vel9studios.levani.popularmovies.fragment.DetailFragment;
 import com.vel9studios.levani.popularmovies.util.Utility;
 
 import java.util.ArrayList;

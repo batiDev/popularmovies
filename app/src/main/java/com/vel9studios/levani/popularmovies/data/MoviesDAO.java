@@ -99,10 +99,10 @@ public class MoviesDAO {
 
     }
 
-    public String getMovieData(String[] params) {
+    public String getMovieData(String sortParam) {
 
         Uri uri = Uri.parse(AppConstants.API_BASE_DISCOVER_URL).buildUpon()
-                .appendQueryParameter(AppConstants.SORT_PARAM, params[0])
+                .appendQueryParameter(AppConstants.SORT_PARAM, sortParam)
                 .appendQueryParameter(AppConstants.API_KEY_PARAM, AppConstantsPrivate.API_KEY)
                 .build();
 
@@ -130,41 +130,5 @@ public class MoviesDAO {
 
         return getJSON(uri);
     };
-
-    public static Uri getFirstMovieId(Context context){
-        Uri firstMovieUri = MoviesContract.MoviesEntry.buildFirstMovieUri();
-        String[] projection = {MoviesContract.MoviesEntry.COLUMN_MOVIE_ID};
-
-        Uri movieUri = null;
-        Integer movieId;
-        String sortOrder = Utility.getSortOrderQuery(context);
-        Cursor firstMovie = context.getContentResolver().query(firstMovieUri, projection, null, null, sortOrder);
-        if (firstMovie.moveToFirst()){
-
-            movieId = firstMovie.getInt(0);
-            movieUri = MoviesContract.MoviesEntry.buildMovieItemUri(movieId);
-        }
-
-        return movieUri;
-    }
-
-    //TODO: call in background thread?
-    public static Integer getMoviesCount(Context context){
-
-        Integer moviesCount = 0;
-
-        Uri moviesUri = MoviesContract.MoviesEntry.buildMoviesUri();
-
-        String[] projection = {MoviesContract.MoviesEntry.COLUMN_MOVIE_ID};
-        String sortOrder = Utility.getSortOrderQuery(context);
-
-        Cursor movies = context.getContentResolver().query(moviesUri, projection, null, null, sortOrder);
-        if (movies.moveToFirst()){
-            moviesCount = movies.getCount();
-        }
-
-        return moviesCount;
-    }
-
 
 }

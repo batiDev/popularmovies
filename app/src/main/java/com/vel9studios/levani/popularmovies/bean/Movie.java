@@ -1,4 +1,4 @@
-package com.vel9studios.levani.popularmovies.beans;
+package com.vel9studios.levani.popularmovies.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;

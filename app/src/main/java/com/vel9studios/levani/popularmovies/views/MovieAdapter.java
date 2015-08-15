@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
-import com.vel9studios.levani.popularmovies.fragments.PopularMoviesFragment;
+import com.vel9studios.levani.popularmovies.fragment.PopularMoviesFragment;
 
 /**
  * {@link MovieAdapter} exposes a list of weather forecasts
