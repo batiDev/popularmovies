@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
             mActiveSortType = sortType;
         }
-
     }
 
     // launch Reviews activity
@@ -128,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
         if ( null != detailFragment) {
             detailFragment.onFavoriteToggle();
         }
-
     }
 
     @Override
@@ -154,8 +152,6 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
                 if (showFavorites) item.setTitle(resources.getString(R.string.action_favorites_hide));
                     else if (!showFavorites) item.setTitle(resources.getString(R.string.action_favorites_show));
             }
-
-
         }
 
         return super.onOptionsItemSelected(item);
