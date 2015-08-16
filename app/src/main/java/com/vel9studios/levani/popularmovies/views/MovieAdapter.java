@@ -44,6 +44,10 @@ public class MovieAdapter extends CursorAdapter {
         int height = resources.getInteger(R.integer.grid_image_height);
         int width = resources.getInteger(R.integer.grid_image_width);
 
+        //imageView.setLayoutParams(new GridView.LayoutParams(160, 320));
+        //imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        //imageView.setPadding(4, 4, 4, 4);
+
         //basic error-handling, if there's no poster data, load generic image
         //Picasso has a .error() function but there seems to be a known issue with
         //sizing? https://github.com/square/picasso/issues/427
@@ -60,6 +64,7 @@ public class MovieAdapter extends CursorAdapter {
             Picasso.with(mContext)
                     .load(fullPosterPath)
                     .resize(width, height)
+                    .centerInside()
                     .into(imageView);
         }
     }
