@@ -40,10 +40,8 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(LOG_TAG, "onPerformSync Called.");
 
         String sortType = Utility.getPreferredSortOrder(getContext());
-
         Log.d("onPerformSync", sortType);
 
         try{

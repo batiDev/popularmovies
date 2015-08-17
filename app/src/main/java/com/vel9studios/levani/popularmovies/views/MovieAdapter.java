@@ -47,22 +47,13 @@ public class MovieAdapter extends CursorAdapter {
         //basic error-handling, if there's no poster data, load generic image
         //Picasso has a .error() function but there seems to be a known issue with
         //sizing? https://github.com/square/picasso/issues/427
-        if (posterPath.equals(AppConstants.STRING_NO_DATA)){
+        String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.GRID_IMAGE_QUERY_WIDTH + posterPath;
 
-            Picasso.with(mContext)
-                    .load(R.drawable.unavailable_poster_white)
-                    .resize(width, height)
-                    .into(imageView);
-        } else {
-
-            //generate full poster path
-            String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.GRID_IMAGE_QUERY_WIDTH + posterPath;
-            Picasso.with(mContext)
-                    .load(fullPosterPath)
-                    .resize(width, height)
-                    .centerCrop()
-                    .into(imageView);
-        }
+        Picasso.with(mContext)
+                .load(fullPosterPath)
+                .resize(width, height)
+                .error(R.drawable.unavailable_poster_white)
+                .into(imageView);
     }
 
     @Override

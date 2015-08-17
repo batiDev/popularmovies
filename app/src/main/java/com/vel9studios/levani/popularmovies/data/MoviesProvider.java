@@ -22,6 +22,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
@@ -37,14 +38,14 @@ public class MoviesProvider extends ContentProvider {
     private final String LOG_TAG = MoviesProvider.class.getSimpleName();
 
     // see URI matcher method for matching details
-    static final int MOVIES = 100;
-    static final int MOVIE_ITEM_DETAILS = 101;
-    static final int VIDEOS = 102;
-    static final int MOVIE_ITEM_VIDEOS = 103;
-    static final int MOVIE_ITEM_FAVORITE = 104;
-    static final int FAVORITES = 105;
-    static final int REVIEWS = 106;
-    static final int MOVIE_ITEM_REVIEWS = 107;
+    private static final int MOVIES = 100;
+    private static final int MOVIE_ITEM_DETAILS = 101;
+    private static final int VIDEOS = 102;
+    private static final int MOVIE_ITEM_VIDEOS = 103;
+    private static final int MOVIE_ITEM_FAVORITE = 104;
+    private static final int FAVORITES = 105;
+    private static final int REVIEWS = 106;
+    private static final int MOVIE_ITEM_REVIEWS = 107;
 
     static final int FIRST_MOVIE = 108;
 
@@ -67,6 +68,11 @@ public class MoviesProvider extends ContentProvider {
 
     private static final String sFavoritesSelection =
             MoviesEntry.TABLE_NAME+"." + MoviesEntry.COLUMN_FAVORITE_IND + " = ? ";
+
+    //http://stackoverflow.com/questions/9386304/what-is-the-syntax-for-not-equal-in-sqlite
+    private static final String sFavoritesNotSelection =
+            MoviesEntry.TABLE_NAME+"." + MoviesEntry.COLUMN_FAVORITE_IND + " != ? OR "
+            + MoviesEntry.TABLE_NAME+"." + MoviesEntry.COLUMN_FAVORITE_IND + " IS NULL";
 
     private static final String sReviewsReviewIdSelection =
             ReviewsEntry.TABLE_NAME+
@@ -355,6 +361,11 @@ public class MoviesProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+    private void deleteMoviesWithoutFavoriteInd(SQLiteDatabase db){
+
+
+    }
+
     /** this is a key function for the provider, modified to work more as an "UPSERT"
      * if movie exists, update it with new data, if not, insert it**/
     @Override
@@ -367,6 +378,11 @@ public class MoviesProvider extends ContentProvider {
 
                 db.beginTransaction();
                 try {
+
+                    //remove any movies that have not been favorited
+                    int numMoviesRemoved = db.delete(MoviesEntry.TABLE_NAME, sFavoritesNotSelection, new String[]{AppConstants.Y_FLAG});
+                    Log.d(LOG_TAG, "num movies removed " + numMoviesRemoved);
+
                     for (ContentValues value : values) {
 
                         long updateId = db.update(MoviesEntry.TABLE_NAME, value, sMovieIdSelection,

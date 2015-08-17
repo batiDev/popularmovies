@@ -59,7 +59,6 @@ public class DetailActivity extends AppCompatActivity {
             Utility.displayFavoritesMessage(favoriteFlag, movieTitle, this);
         }
 
-        //TODO: make sure it works in two pane mode...
         DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().findFragmentById(R.id.movie_detail_container);
         if ( null != detailFragment) {
             detailFragment.onFavoriteToggle();

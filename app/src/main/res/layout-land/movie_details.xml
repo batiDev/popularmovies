@@ -41,17 +41,11 @@
         </LinearLayout>
 
         <LinearLayout
+            android:paddingLeft="@dimen/abc_button_padding_horizontal_material"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:padding="2dp"
-                android:id="@+id/detail_movie_release_date"
-                android:layout_width="wrap_content"
-                android:textSize="@dimen/release_date_text"
-                android:layout_height="wrap_content"/>
+            android:orientation="vertical"
+            android:layout_weight="1">
 
             <!-- reviews -->
             <Button
@@ -62,6 +56,15 @@
                 android:onClick="launchReviews"
                 android:layout_height="wrap_content"/>
 
+            <!-- release date -->
+            <TextView
+                android:padding="2dp"
+                android:id="@+id/detail_movie_release_date"
+                android:layout_width="wrap_content"
+                android:textSize="@dimen/release_date_text"
+                android:layout_height="wrap_content"/>
+
+            <!-- rating -->
             <LinearLayout
                 android:padding="2dp"
                 android:layout_height="wrap_content"
@@ -85,6 +88,7 @@
 
             </LinearLayout>
 
+            <!-- favorite star -->
             <ImageButton
                 android:padding="2dp"
                 android:id="@+id/detail_favorite"
@@ -95,9 +99,6 @@
 
         </LinearLayout>
 
-
     </LinearLayout>
-
-
 
 </LinearLayout>

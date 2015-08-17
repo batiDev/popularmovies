@@ -11,6 +11,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -221,6 +222,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 // update details view
                 String movieTitle = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_TITLE_ID);
                 mTitle.setText(movieTitle);
+
+                String releaseDate = cursor.getString(DetailFragmentConstants.COLUMN_RELEASE_DATE_ID);
+
                 mReleaseDate.setText(cursor.getString(DetailFragmentConstants.COLUMN_RELEASE_DATE_ID));
                 mVoteAverage.setText(String.valueOf(cursor.getDouble(DetailFragmentConstants.COLUMN_VOTE_AVERAGE_ID)));
                 mMovieOverview.setText(cursor.getString(DetailFragmentConstants.COLUMN_OVERVIEW_ID));
@@ -260,14 +264,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 // set value for launching ReviewsActivity
                 mReviews.setTag(mMovieId);
 
-
             } else if (currentLoader == VIDEO_LOADER) {
 
                 if (cursor.moveToFirst()){
+                    //get youtube video key for first trailer and create share video intent
                     mFirstVideoYouTubeKey = cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_KEY);
-                    if (cursor.moveToFirst() && mShareActionProvider != null){
+                    if (mShareActionProvider != null)
                         mShareActionProvider.setShareIntent(createShareVideoIntent(mFirstVideoYouTubeKey));
-                    }
                 }
 
                 mTrailerAdapter.swapCursor(cursor);

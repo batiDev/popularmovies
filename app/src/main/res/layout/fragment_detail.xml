@@ -24,9 +24,7 @@
 
     </LinearLayout>
 
-
-
-
+    <!-- movie_details.xml fits is conceptually inserted here -->
 
     <ListView
         android:id="@+id/listview_trailers"

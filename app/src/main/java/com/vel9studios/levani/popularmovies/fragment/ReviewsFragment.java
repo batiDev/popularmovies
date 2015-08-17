@@ -25,12 +25,12 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
     private final String LOG_TAG = ReviewsFragment.class.getSimpleName();
     public static final String REVIEWS_URI = "URI";
 
-    TextView mNoReviews;
-    ReviewsAdapter mReviewsAdapter;
-    ListView mReviewsListView;
+    private TextView mNoReviews;
+    private ReviewsAdapter mReviewsAdapter;
+    private ListView mReviewsListView;
 
     //Uris
-    Uri mReviewsUri;
+    private Uri mReviewsUri;
 
     private static final int REVIEWS_LOADER = 1;
 
