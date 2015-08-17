@@ -25,14 +25,14 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
     private final String LOG_TAG = ReviewsFragment.class.getSimpleName();
     public static final String REVIEWS_URI = "URI";
 
-    TextView mReviews;
+    TextView mNoReviews;
     ReviewsAdapter mReviewsAdapter;
     ListView mReviewsListView;
 
     //Uris
     Uri mReviewsUri;
 
-    private static final int REVIEWS_LOADER = 2;
+    private static final int REVIEWS_LOADER = 1;
 
     private Movie movie;
     public ReviewsFragment() {
@@ -67,7 +67,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         mReviewsAdapter = new ReviewsAdapter(getActivity(), null, 0);
         mReviewsListView.setAdapter(mReviewsAdapter);
 
-        mReviews = (TextView) rootView.findViewById(R.id.detail_reviews);
+        mNoReviews = (TextView) rootView.findViewById(R.id.no_reviews_text);
 
         return rootView;
     }
@@ -104,6 +104,14 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
             if (loader.getId() == REVIEWS_LOADER){
                 mReviewsAdapter.swapCursor(cursor);
             }
+
+            // hide "no reviews" message
+            mNoReviews.setVisibility(View.GONE);
+
+        } else {
+
+            // show "no reviews" message
+            mNoReviews.setVisibility(View.VISIBLE);
         }
     }
 

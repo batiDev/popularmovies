@@ -8,8 +8,8 @@
     <dimen name="detail_header_text">32sp</dimen>
 
     <!-- detail image size -->
-    <dimen name="detail_image_width">200dp</dimen>
-    <dimen name="detail_image_height">300dp</dimen>
+    <dimen name="detail_image_width">168dp</dimen>
+    <dimen name="detail_image_height">224dp</dimen>
 
     <!-- detail movie details -->
     <dimen name="release_date_text">32sp</dimen>

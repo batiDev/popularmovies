@@ -55,6 +55,11 @@ public class AppConstants {
     //youTube values
     public static final String YOUTUBE_VIDEO_ID = "VIDEO_ID";
     public static final String YOUTUBE_URI = "vnd.youtube:";
+    public static final String YOUTUBE_URL_SHARE = "http://youtube.com/watch?v=";
 
     public static final String FAVORITE_IND = "favoriteInd";
+    public static final String MOVIE_ID_TAG = "movieId";
+
+
+
 }

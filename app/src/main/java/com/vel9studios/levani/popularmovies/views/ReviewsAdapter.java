@@ -3,7 +3,6 @@ package com.vel9studios.levani.popularmovies.views;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +23,6 @@ public class ReviewsAdapter extends CursorAdapter {
         super(context, c, flags);
     }
 
-    /*
-        Remember that these views are reused as needed.
-     */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
 
@@ -38,9 +34,12 @@ public class ReviewsAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        // Read date from cursor
+        // Read data from cursor
         TextView reviewContent = (TextView) view.findViewById(R.id.list_item_review_content);
         reviewContent.setText(cursor.getString(DetailFragmentConstants.COLUMN_REVIEW_CONTENT_ID));
+
+        TextView author = (TextView) view.findViewById(R.id.list_item_review_author);
+        author.setText(cursor.getString(DetailFragmentConstants.COLUMN_REVIEWS_AUTHOR_ID));
     }
 
 }

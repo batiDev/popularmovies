@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Popular Movies</string>
     <string name="action_settings">Settings</string>
+    <string name="action_share">Share</string>
     <string name="action_favorites_show">Show Favorites</string>
     <string name="action_favorites_hide">Hide Favorites</string>
     <string name="title_activity_detail">Movie Detail</string>
@@ -18,5 +19,8 @@
     <!-- SyncAdapter related -->
     <string name="sync_account_type">levani.vel9studios.com</string>
     <string name="content_authority">com.vel9studios.levani.popularmovies</string>
+
+    <!--reviews-->
+    <string name="no_reviews">No reviews available.</string>
 
 </resources>

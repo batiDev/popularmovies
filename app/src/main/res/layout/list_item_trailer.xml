@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/list_item_trailer_name"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
 
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="@dimen/default_padding"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:descendantFocusability="blocksDescendants"
+    android:layout_weight="1">
+
+    <!-- blockDescendants applied to keep the list item clickable: http://stackoverflow.com/questions/16119643/android-listview-with-button-is-not-selectableclickable -->
+    <ImageButton
+        android:id="@+id/detail_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_media_play"
+        android:background="#00ffffff"
+         />
+
+    <TextView
+        android:id="@+id/list_item_trailer_name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="@dimen/abc_text_size_large_material"/>
+
+</LinearLayout>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="2dp"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:layout_gravity="start"
+        >
+
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/detail_movie_image"
+                android:layout_width="@dimen/detail_image_width"
+                android:layout_height="@dimen/detail_image_height"
+                android:padding="4dp"
+                android:layout_gravity="center"
+                />
+
+            <!-- overview text content -->
+            <TextView
+                android:layout_margin="4dp"
+                android:padding="2dp"
+                android:id="@+id/detail_movie_overview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:padding="2dp"
+                android:id="@+id/detail_movie_release_date"
+                android:layout_width="wrap_content"
+                android:textSize="@dimen/release_date_text"
+                android:layout_height="wrap_content"/>
+
+            <!-- reviews -->
+            <Button
+                android:id="@+id/detail_reviews"
+                android:layout_width="wrap_content"
+                android:textColor="@color/primary_color"
+                android:text="Reviews"
+                android:onClick="launchReviews"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:padding="2dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:padding="2dp"
+                    android:id="@+id/detail_movie_vote_average_label"
+                    android:text="@string/rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:padding="2dp"
+                    android:id="@+id/detail_movie_vote_average"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="italic|bold"
+                    android:textColor="@color/primary_color"/>
+
+            </LinearLayout>
+
+            <ImageButton
+                android:padding="2dp"
+                android:id="@+id/detail_favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="setFavorite"
+                android:background="#00ffffff" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

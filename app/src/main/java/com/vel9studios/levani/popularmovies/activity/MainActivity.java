@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Menu;
@@ -101,14 +102,28 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
             Bundle args = new Bundle();
             args.putParcelable(ReviewsFragment.REVIEWS_URI, reviewsUri);
 
-            ReviewsFragment fragment = new ReviewsFragment();
-            fragment.setArguments(args);
+            ReviewsFragment fragment = null;
+            FragmentManager fm = getSupportFragmentManager();
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_detail_container, fragment, AppConstants.REVIEWFRAGMENT_TAG)
-                    // add to backstrack so user can use the back button
-                    .addToBackStack(null)
-                    .commit();
+            // add fragment to backstack only if hasn't already been added to backstack
+            // http://stackoverflow.com/questions/14460109/android-fragmenttransaction-addtobackstack-confusion
+            if (fm.findFragmentByTag(AppConstants.REVIEWFRAGMENT_TAG) != null){
+
+                fragment =(ReviewsFragment) fm.findFragmentByTag(AppConstants.REVIEWFRAGMENT_TAG);
+                fm.beginTransaction()
+                        .replace(R.id.movie_detail_container, fragment, AppConstants.REVIEWFRAGMENT_TAG)
+                        .commit();
+            } else {
+
+                fragment = new ReviewsFragment();
+                fragment.setArguments(args);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, fragment, AppConstants.REVIEWFRAGMENT_TAG)
+                        // add to backstrack so user can use the back button
+                        .addToBackStack(AppConstants.REVIEWFRAGMENT_TAG)
+                        .commit();
+            }
+
         }
     }
 

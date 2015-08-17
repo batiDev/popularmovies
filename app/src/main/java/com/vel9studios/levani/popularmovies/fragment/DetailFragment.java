@@ -9,10 +9,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,32 +40,61 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     public static final String DETAIL_URI = "URI";
 
+    private ShareActionProvider mShareActionProvider;
+    private String mFirstVideoYouTubeKey;
+
     // id for the movie in detail view, and the id used to fetch videos and reviews
-    String mMovieId;
+    private String mMovieId;
 
     //views
-    TextView mTitle;
-    TextView mReleaseDate;
-    TextView mVoteAverage;
-    TextView mMovieOverview;
-    String mFavoriteInd;
-    TextView mFavorite;
-    TextView mReviews;
-    ImageView mPoster;
+    private TextView mTitle;
+    private TextView mReleaseDate;
+    private TextView mVoteAverage;
+    private TextView mMovieOverview;
+    private String mFavoriteInd;
+    private ImageButton mFavorite;
+    private TextView mReviews;
+    private ImageView mPoster;
 
     // video/trailer values
-    TrailerAdapter mTrailerAdapter;
-    ListView mTrailerListView;
+    private TrailerAdapter mTrailerAdapter;
+    private ListView mTrailerListView;
 
     //Uris
-    Uri mUri;
-    Uri mVideosUri;
+    private Uri mUri;
+    private Uri mVideosUri;
 
     private static final int DETAIL_LOADER = 0;
     private static final int VIDEO_LOADER = 1;
 
-    public DetailFragment() {
+    public DetailFragment() { setHasOptionsMenu(true);}
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.detailfragment, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        if (mFirstVideoYouTubeKey != null){
+            mShareActionProvider.setShareIntent(createShareVideoIntent(mFirstVideoYouTubeKey));
+        }
+
+    }
+
+    private Intent createShareVideoIntent(String youTubeVideoKey) {
+
+        //code from Developing Android Apps: Fundamentals course
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, AppConstants.YOUTUBE_URL_SHARE + youTubeVideoKey);
+        return shareIntent;
     }
 
     //Build detail view of the movie
@@ -68,20 +103,25 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
 
         Bundle arguments = getArguments();
-        if (arguments != null) {
+        if (arguments != null)
             mUri = arguments.getParcelable(DETAIL_URI);
-        }
 
-        if (savedInstanceState != null){
-            // Save the user's current game state
-            mMovieId = savedInstanceState.getString("movieId");
-        }
+        if (savedInstanceState != null)
+            mMovieId = savedInstanceState.getString(AppConstants.MOVIE_ID_TAG);
 
         //set text elements
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
         mTrailerAdapter = new TrailerAdapter(getActivity(), null, 0);
+
+        /* Add overview into the list view to take advantage of the built-in scrolling.
+         * Avoids the "ListView in ScrollView" problem
+         * http://stackoverflow.com/questions/7978359/using-listview-how-to-add-a-header-view
+         */
         mTrailerListView = (ListView) rootView.findViewById(R.id.listview_trailers);
+        ViewGroup header = (ViewGroup)inflater.inflate(R.layout.movie_details, mTrailerListView, false);
+        mTrailerListView.addHeaderView(header, null, false);
+
         mTrailerListView.setAdapter(mTrailerAdapter);
         mTrailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -106,7 +146,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mVoteAverage = (TextView) rootView.findViewById(R.id.detail_movie_vote_average);
         mMovieOverview = (TextView) rootView.findViewById(R.id.detail_movie_overview);
         mPoster = (ImageView) rootView.findViewById(R.id.detail_movie_image);
-        mFavorite = (TextView) rootView.findViewById(R.id.detail_favorite);
+        mFavorite = (ImageButton) rootView.findViewById(R.id.detail_favorite);
         mReviews = (TextView) rootView.findViewById(R.id.detail_reviews);
 
         return rootView;
@@ -115,7 +155,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -188,13 +227,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
                 String currentMovieId = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_ID);
 
-                // if displaying details for a new movie, fetch videos
-                if (mMovieId == null || !mMovieId.equals(currentMovieId) )
-                    getVideos(currentMovieId);
+                getVideos(currentMovieId);
 
                 mMovieId = currentMovieId;
 
+                //http://stackoverflow.com/questions/21114025/how-to-change-only-the-image-inside-an-imagebutton-and-not-the-whole-imagebutton
                 mFavoriteInd = cursor.getString(DetailFragmentConstants.COLUMN_FAVORITE_IND_ID);
+                if (mFavoriteInd != null && mFavoriteInd.equals(AppConstants.Y_FLAG))
+                    mFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+                else
+                    mFavorite.setImageResource(android.R.drawable.btn_star_big_off);
 
                 String posterPath = cursor.getString(DetailFragmentConstants.COLUMN_IMAGE_PATH_ID);
                 String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.DETAIL_IMAGE_QUERY_WIDTH + posterPath;
@@ -218,7 +260,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 // set value for launching ReviewsActivity
                 mReviews.setTag(mMovieId);
 
+
             } else if (currentLoader == VIDEO_LOADER) {
+
+                if (cursor.moveToFirst()){
+                    mFirstVideoYouTubeKey = cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_KEY);
+                    if (cursor.moveToFirst() && mShareActionProvider != null){
+                        mShareActionProvider.setShareIntent(createShareVideoIntent(mFirstVideoYouTubeKey));
+                    }
+                }
+
                 mTrailerAdapter.swapCursor(cursor);
             }
         }
@@ -226,16 +277,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void getVideos(String currentMovieId) {
 
-        FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity());
-        fetchVideosTask.execute(currentMovieId);
-        mVideosUri = MoviesContract.VideosEntry.buildVideosUri(currentMovieId);
+        // if displaying details for a new movie, fetch videos
+        if (mMovieId == null || !mMovieId.equals(currentMovieId) ){
+
+            FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity());
+            fetchVideosTask.execute(currentMovieId);
+            mVideosUri = MoviesContract.VideosEntry.buildVideosUri(currentMovieId);
+        }
+
+        //start the loader when activity is recreated even if movieId is already present
         getLoaderManager().initLoader(VIDEO_LOADER, null, this);
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
-        savedInstanceState.putString("movieId", mMovieId);
+        savedInstanceState.putString(AppConstants.MOVIE_ID_TAG, mMovieId);
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
