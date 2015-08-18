@@ -12,7 +12,7 @@ import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
 
 /**
- * {@link ReviewsAdapter} exposes a list of weather forecasts
+ * {@link ReviewsAdapter} exposes a list of reviews
  * from a {@link Cursor} to a {@link android.widget.ListView}.
  */
 public class ReviewsAdapter extends CursorAdapter {

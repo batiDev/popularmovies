@@ -4,7 +4,6 @@ package com.vel9studios.levani.popularmovies.constants;
  * Class for holding constants used in code
  */
 public class AppConstants {
-    public static final String MOVIE_OBJECT_EXTRA = "movieExtra";
 
     //Query params - image
     public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w";
@@ -30,14 +29,13 @@ public class AppConstants {
     public static final String RELEASE_DATE = "release_date";
     public static final String VOTE_AVERAGE = "vote_average";
     public static final String POSTER_PATH = "poster_path";
-
-    //save state
-    public static final String MOVIE_VALUES = "movieValues";
+    public static final String POPULARITY = "popularity";
+    public static final String MOVIE_ID = "id";
 
     //General Messages
     public static final String API_KEY_WARNING = "Please set API Key";
     public static final String APP_START_ERROR = "Could not start application";
-    public static final String CONNECTION_ERROR = "Connection Error";
+    public static final String CONNECTION_ERROR = "Could not fetch updated movie data";
 
     //sort orders
     public static final String SORT_TYPE_POPULARITY = "popularity.desc";
@@ -59,7 +57,5 @@ public class AppConstants {
 
     public static final String FAVORITE_IND = "favoriteInd";
     public static final String MOVIE_ID_TAG = "movieId";
-
-
 
 }

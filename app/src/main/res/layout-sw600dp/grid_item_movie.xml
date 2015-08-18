@@ -2,9 +2,9 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="168dp"
     android:layout_height="224dp"
-    android:paddingLeft="1dp"
-    android:paddingRight="1dp"
-    android:paddingTop="1dp"
-    android:paddingBottom="1dp"
+    android:paddingLeft="@dimen/grid_view_padding"
+    android:paddingRight="@dimen/grid_view_padding"
+    android:paddingTop="@dimen/grid_view_padding"
+    android:paddingBottom="@dimen/grid_view_padding"
     android:id="@+id/grid_item_movie_image">
 </ImageView>

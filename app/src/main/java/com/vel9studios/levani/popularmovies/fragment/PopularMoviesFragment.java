@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +26,6 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
 
     private final String LOG_TAG = PopularMoviesFragment.class.getSimpleName();
     private MovieAdapter mMoviesAdapter;
-    private Boolean applicationRunStatus;
     private Boolean mShowFavorites = false;
     private int mPosition = ListView.INVALID_POSITION;
 
@@ -52,22 +50,24 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
      * selections.
+     *
+     *  code from Developing Android Apps: Fundamentals course
      */
     public interface Callback {
-        void onItemSelected(Uri dateUri);
+        void onItemSelected(Uri dataUri);
     }
 
+    // flip favorites flag and restart loader
     public Boolean onFavoritesChanged() {
         mShowFavorites = !mShowFavorites;
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
         return mShowFavorites;
     }
 
-    public void onSortOrderChanged(String sortType){
+    public void onSortOrderChanged(){
 
-        Log.d(LOG_TAG, "sync immediately");
+        // if sort changes, update everything
         MoviesSyncAdapter.syncImmediately(getActivity());
-
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
     }
 
@@ -83,12 +83,11 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
 
         //check for needed elements
         Context context = getActivity();
-        applicationRunStatus = Validation.appContainsAPIKey(context);
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         View view = rootView.findViewById(R.id.grid_item_movie_image);
 
-        if (applicationRunStatus){
+        if (Validation.appContainsAPIKey(context)){
 
             mMoviesAdapter = new MovieAdapter(context, null, 0);
             mGridView = (GridView) view;
@@ -137,6 +136,7 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
 
+        // build URI based on what the user is expecting, if favorites, only bring back records flagged as favorite
         Uri moviesUri;
         if (mShowFavorites)
             moviesUri = MoviesContract.MoviesEntry.buildMovieFavoritesUri();
@@ -155,8 +155,10 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mMoviesAdapter.swapCursor(cursor);
 
+        if (mMoviesAdapter != null) mMoviesAdapter.swapCursor(cursor);
+
+        // Core code from Udacity's "Developing Android Apps: Fundamentals"
         if (mPosition != GridView.INVALID_POSITION) {
             // If we don't need to restart the loader, and there's a desired position to restore
             // to, do so now.

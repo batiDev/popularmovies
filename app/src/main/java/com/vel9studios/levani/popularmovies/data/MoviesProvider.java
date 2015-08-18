@@ -22,7 +22,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
@@ -47,7 +46,7 @@ public class MoviesProvider extends ContentProvider {
     private static final int REVIEWS = 106;
     private static final int MOVIE_ITEM_REVIEWS = 107;
 
-    static final int FIRST_MOVIE = 108;
+    private static final int FIRST_MOVIE = 108;
 
     // WHERE clauses
     private static final String sMovieIdSelection =
@@ -79,7 +78,7 @@ public class MoviesProvider extends ContentProvider {
                     "." + ReviewsEntry.COLUMN_REVIEW_ID + " = ? ";
 
 
-    static UriMatcher buildUriMatcher() {
+    private static UriMatcher buildUriMatcher() {
 
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MoviesContract.CONTENT_AUTHORITY;
@@ -113,15 +112,15 @@ public class MoviesProvider extends ContentProvider {
     }
 
     /** URI PARSE HELPER METHODS **/
-    public static String getMovieIdFromUri(Uri uri) {
+    private static String getMovieIdFromUri(Uri uri) {
         return uri.getPathSegments().get(1);
     }
 
-    public static String getMovieIdFromFavoriteUri(Uri uri) {
+    private static String getMovieIdFromFavoriteUri(Uri uri) {
         return uri.getPathSegments().get(2);
     }
 
-    public static String getFavoriteActionFromUri(Uri uri) {
+    private static String getFavoriteActionFromUri(Uri uri) {
         return uri.getQueryParameter(AppConstants.FAVORITE_IND);
     }
 
@@ -254,6 +253,7 @@ public class MoviesProvider extends ContentProvider {
 
                 break;
             }
+            // get the first movie in db for given sort order
             case FIRST_MOVIE:
             {
                 retCursor = mOpenHelper.getReadableDatabase().query(
@@ -361,13 +361,8 @@ public class MoviesProvider extends ContentProvider {
         return rowsUpdated;
     }
 
-    private void deleteMoviesWithoutFavoriteInd(SQLiteDatabase db){
-
-
-    }
-
     /** this is a key function for the provider, modified to work more as an "UPSERT"
-     * if movie exists, update it with new data, if not, insert it**/
+     * if movie exists, update it with new data, if not, insert it **/
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -379,9 +374,12 @@ public class MoviesProvider extends ContentProvider {
                 db.beginTransaction();
                 try {
 
-                    //remove any movies that have not been favorited
-                    int numMoviesRemoved = db.delete(MoviesEntry.TABLE_NAME, sFavoritesNotSelection, new String[]{AppConstants.Y_FLAG});
-                    Log.d(LOG_TAG, "num movies removed " + numMoviesRemoved);
+                    // clear out any movies that have not been favorited.
+                    // When sorting by rating there's a bunch of 'bad' data movies with 10.0 ratings
+                    // if those don't get cleared out, after a while we end with 20 movies all with 10.0 ratings that end up keeping that unrealstic rating and staying on top of the list.
+                    // Since the 'sort by rating' list is much more in flux than the popularity sorted movies, we also end up with a ton of data in the db we don't need.
+                    // need to keep thinking about this one.
+                    db.delete(MoviesEntry.TABLE_NAME, sFavoritesNotSelection, new String[]{AppConstants.Y_FLAG});
 
                     for (ContentValues value : values) {
 
@@ -390,7 +388,7 @@ public class MoviesProvider extends ContentProvider {
 
 
                         if (updateId == 0){
-                            long _id = db.insert(MoviesEntry.TABLE_NAME, null, value);
+                            db.insert(MoviesEntry.TABLE_NAME, null, value);
                         }
 
                         returnCount++;
@@ -412,7 +410,7 @@ public class MoviesProvider extends ContentProvider {
                                 new String[]{value.getAsString(VideosEntry.COLUMN_VIDEO_ID)});
 
                         if (updateId == 0){
-                            long _id = db.insert(VideosEntry.TABLE_NAME, null, value);
+                            db.insert(VideosEntry.TABLE_NAME, null, value);
                         }
 
                         returnCount++;
@@ -434,7 +432,7 @@ public class MoviesProvider extends ContentProvider {
                                 new String[]{value.getAsString(ReviewsEntry.COLUMN_REVIEW_ID)});
 
                         if (updateId == 0){
-                            long _id = db.insert(ReviewsEntry.TABLE_NAME, null, value);
+                            db.insert(ReviewsEntry.TABLE_NAME, null, value);
                             returnCount++;
                         }
                     }
@@ -451,10 +449,6 @@ public class MoviesProvider extends ContentProvider {
         }
     }
 
-    /**** CONTENT PROVIDER METHODS ****/
-
-    // You do not need to call this method. This is a method specifically to assist the testing
-    // framework in running smoothly. You can read more at:
     // http://developer.android.com/reference/android/content/ContentProvider.html#shutdown()
     @Override
     @TargetApi(11)

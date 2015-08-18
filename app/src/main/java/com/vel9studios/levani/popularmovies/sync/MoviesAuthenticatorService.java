@@ -7,6 +7,8 @@ import android.os.IBinder;
 /**
  * The service which allows the sync adapter framework to access the authenticator.
  */
+
+// Supporting code from Developing Android Apps: Fundamentals course
 public class MoviesAuthenticatorService extends Service {
     // Instance field that stores the authenticator object
     private MoviesAuthenticator mAuthenticator;

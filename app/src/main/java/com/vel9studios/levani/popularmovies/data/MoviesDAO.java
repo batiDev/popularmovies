@@ -1,13 +1,10 @@
 package com.vel9studios.levani.popularmovies.data;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.constants.AppConstantsPrivate;
-import com.vel9studios.levani.popularmovies.util.Utility;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +21,7 @@ public class MoviesDAO {
     private final String LOG_TAG = MoviesDAO.class.getSimpleName();
 
     /**
-     * Code from Udacity gist: https://gist.github.com/udacityandroid/d6a7bb21904046a91695
+     * Core code from Udacity gist: https://gist.github.com/udacityandroid/d6a7bb21904046a91695
      *
      * Moved code outside of fragment to modularize flow more.
      *
@@ -42,8 +39,10 @@ public class MoviesDAO {
         try {
 
             //check for API key
-            if (AppConstantsPrivate.API_KEY.length() == 0)
+            if (AppConstantsPrivate.API_KEY.length() == 0){
                 Log.e(LOG_TAG, AppConstants.API_KEY_WARNING);
+                return null;
+            }
 
             URL url = new URL(uri.toString());
             Log.d(LOG_TAG, uri.toString());
@@ -55,7 +54,7 @@ public class MoviesDAO {
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
                 // Nothing to do.
                 return null;
@@ -68,7 +67,7 @@ public class MoviesDAO {
                 // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
                 // But it does make debugging a *lot* easier if you print out the completed
                 // buffer for debugging.
-                buffer.append(line + "\n");
+                buffer.append(line).append("\n");
             }
 
             if (buffer.length() == 0) {
@@ -107,7 +106,7 @@ public class MoviesDAO {
                 .build();
 
         return getJSON(uri);
-    };
+    }
 
     public String getVideos(String movieId) {
 
@@ -118,7 +117,7 @@ public class MoviesDAO {
                 .build();
 
         return getJSON(uri);
-    };
+    }
 
     public String getReviews(String movieId) {
 
@@ -129,6 +128,6 @@ public class MoviesDAO {
                 .build();
 
         return getJSON(uri);
-    };
+    }
 
 }

@@ -14,9 +14,6 @@ import org.json.JSONObject;
 
 import java.util.Vector;
 
-/**
- * Created by levani on 8/6/15.
- */
 public class FetchVideosTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchVideosTask.class.getSimpleName();
@@ -48,12 +45,16 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
     private Void getVideosDataFromJson(String videosJsonStr)
             throws JSONException {
 
+        if (videosJsonStr== null){
+            return null;
+        }
+
         JSONObject moviesJson = new JSONObject(videosJsonStr);
         JSONArray videoList = moviesJson.getJSONArray(AppConstants.RESULTS);
 
         int videoListLength = videoList.length();
 
-        Vector<ContentValues> cVVector = new Vector<ContentValues>(videoListLength);
+        Vector<ContentValues> cVVector = new Vector<>(videoListLength);
 
         for(int i = 0; i < videoListLength; i++) {
 
@@ -79,15 +80,12 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
             cVVector.add(videoValues);
         }
 
-        int inserted = 0;
-        // add to database
+        //Insert content values code from "Developing Android Apps: Fundamentals"
         if ( cVVector.size() > 0 ) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
-            inserted = mContext.getContentResolver().bulkInsert(MoviesContract.VideosEntry.CONTENT_URI, cvArray);
+            mContext.getContentResolver().bulkInsert(MoviesContract.VideosEntry.CONTENT_URI, cvArray);
         }
-
-        Log.d(LOG_TAG, "FetchVideosTask Complete. " + inserted + " Inserted");
 
         return null;
     }

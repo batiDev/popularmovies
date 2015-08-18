@@ -5,7 +5,6 @@
 
     <!-- detail header -->
     <dimen name="detail_header_padding">32dp</dimen>
-    <dimen name="detail_header_text">32sp</dimen>
 
     <!-- detail image size -->
     <dimen name="detail_image_width">168dp</dimen>
@@ -17,10 +16,10 @@
     <!-- default padding -->
     <dimen name="default_padding">16dp</dimen>
 
-    <!-- gridview spacing -->
-    <dimen name="vertical_spacing">8dp</dimen>
-    <dimen name="horizontal_spacing">0dp</dimen>
+    <dimen name="grid_view_column_width">130dp</dimen>
+    <dimen name="grid_view_padding">1dp</dimen>
 
-
+    <dimen name="movie_details_padding_default">2dp</dimen>
+    <dimen name="detail_image_padding_default">4dp</dimen>
 
 </resources>

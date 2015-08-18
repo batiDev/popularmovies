@@ -2,9 +2,6 @@ package com.vel9studios.levani.popularmovies.constants;
 
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 
-/**
- * Created by levani on 8/9/15.
- */
 public class DetailFragmentConstants {
 
     public static final String[] MOVIE_DETAIL_COLUMNS = {

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +21,6 @@ import com.vel9studios.levani.popularmovies.util.Utility;
 
 import java.util.ArrayList;
 
-//Code from "Developing Android Apps: Fundamentals"/default code
 public class MainActivity extends AppCompatActivity implements PopularMoviesFragment.Callback {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -34,12 +32,10 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
         mActiveSortType = Utility.getPreferredSortOrder(this);
         setContentView(R.layout.activity_main);
 
+        // two-pane code from Developing Android Apps: Fundamentals course
         if (findViewById(R.id.movie_detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be
@@ -57,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
             mTwoPane = false;
         }
 
+        // get the sync going
         MoviesSyncAdapter.initializeSyncAdapter(this);
     }
 
@@ -71,20 +68,22 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
     protected void onResume() {
 
         super.onResume();
+
         String sortType = Utility.getPreferredSortOrder(this);
 
+        // if user has selected a new sort type, update the app accordingly
         if (!mActiveSortType.equals(sortType)){
 
             PopularMoviesFragment popularMoviesFragment = (PopularMoviesFragment)getSupportFragmentManager().findFragmentById(R.id.popular_movies_fragment);
             if ( null != popularMoviesFragment ) {
 
-                popularMoviesFragment.onSortOrderChanged(sortType);
+                popularMoviesFragment.onSortOrderChanged();
             }
 
             DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().findFragmentByTag(AppConstants.DETAILFRAGMENT_TAG);
             if ( null != detailFragment) {
 
-                detailFragment.onSortOrderChanged(sortType);
+                detailFragment.onSortOrderChanged();
             }
 
             mActiveSortType = sortType;
@@ -92,27 +91,27 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
     }
 
     // launch Reviews activity
-    public void launchReviews(View view)
-    {
-        if (mTwoPane)
-        {
+    public void launchReviews(View view){
+
+        if (mTwoPane){
+
             String movieId = (String) view.getTag();
             Uri reviewsUri = MoviesContract.ReviewsEntry.buildReviewsUri(movieId);
 
             Bundle args = new Bundle();
             args.putParcelable(ReviewsFragment.REVIEWS_URI, reviewsUri);
 
-            ReviewsFragment fragment = null;
+            ReviewsFragment fragment;
+
             FragmentManager fm = getSupportFragmentManager();
 
-            // add fragment to backstack only if hasn't already been added to backstack
-            // http://stackoverflow.com/questions/14460109/android-fragmenttransaction-addtobackstack-confusion
+            // http://stackoverflow.com/questions/9033019/removing-a-fragment-from-the-back-stack
             if (fm.findFragmentByTag(AppConstants.REVIEWFRAGMENT_TAG) != null){
+                //if fragment already exists, remove it
+                fragment = (ReviewsFragment) fm.findFragmentByTag(AppConstants.REVIEWFRAGMENT_TAG);
+                fm.beginTransaction().remove(fragment).commit();
+                fm.popBackStack();
 
-                fragment =(ReviewsFragment) fm.findFragmentByTag(AppConstants.REVIEWFRAGMENT_TAG);
-                fm.beginTransaction()
-                        .replace(R.id.movie_detail_container, fragment, AppConstants.REVIEWFRAGMENT_TAG)
-                        .commit();
             } else {
 
                 fragment = new ReviewsFragment();
@@ -127,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
         }
     }
 
+    // toggle record favorite state in db
     public void setFavorite(View view)
     {
         ArrayList<String> favoriteValues = (ArrayList<String>) view.getTag();
@@ -165,11 +165,12 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
         if (id == R.id.action_favorites) {
 
             PopularMoviesFragment popularMoviesFragment = (PopularMoviesFragment)getSupportFragmentManager().findFragmentById(R.id.popular_movies_fragment);
-            if ( null != popularMoviesFragment ) {
+            if (popularMoviesFragment != null) {
                 Boolean showFavorites = popularMoviesFragment.onFavoritesChanged();
                 Resources resources = getResources();
+
                 if (showFavorites) item.setTitle(resources.getString(R.string.action_favorites_hide));
-                    else if (!showFavorites) item.setTitle(resources.getString(R.string.action_favorites_show));
+                else item.setTitle(resources.getString(R.string.action_favorites_show));
             }
         }
 
@@ -189,7 +190,16 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
             DetailFragment fragment = new DetailFragment();
             fragment.setArguments(args);
 
-            getSupportFragmentManager().beginTransaction()
+            // http://stackoverflow.com/questions/9033019/removing-a-fragment-from-the-back-stack
+            FragmentManager fm = getSupportFragmentManager();
+            if (fm.findFragmentByTag(AppConstants.REVIEWFRAGMENT_TAG) != null){
+                //if fragment already exists, remove it
+                ReviewsFragment reviewsFragment = (ReviewsFragment) fm.findFragmentByTag(AppConstants.REVIEWFRAGMENT_TAG);
+                fm.beginTransaction().remove(reviewsFragment).commit();
+                fm.popBackStack();
+            }
+
+            fm.beginTransaction()
                     .replace(R.id.movie_detail_container, fragment, AppConstants.DETAILFRAGMENT_TAG)
                     .commit();
         } else {

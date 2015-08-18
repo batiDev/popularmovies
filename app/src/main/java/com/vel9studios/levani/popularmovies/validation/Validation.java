@@ -6,9 +6,6 @@ import android.widget.Toast;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.constants.AppConstantsPrivate;
 
-/**
- * Created by levani on 8/13/15.
- */
 public class Validation {
 
     /**

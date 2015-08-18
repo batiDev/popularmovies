@@ -9,8 +9,6 @@ import android.preference.PreferenceManager;
 import com.vel9studios.levani.popularmovies.R;
 
 /**
- * Created by levani on 7/18/15.
- *
  * Core code learned from "Developing Android Apps: Fundamentals"
  */
 public class SettingsFragment extends PreferenceFragment

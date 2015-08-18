@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.bean.Movie;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 import com.vel9studios.levani.popularmovies.data.MoviesDAO;
@@ -27,12 +26,12 @@ import org.json.JSONObject;
 import java.util.Vector;
 
 public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
-    public final String LOG_TAG = MoviesSyncAdapter.class.getSimpleName();
+    private final String LOG_TAG = MoviesSyncAdapter.class.getSimpleName();
 
     // Interval at which to sync with the weather, in milliseconds.
     // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60 * 180;
-    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+    private static final int SYNC_INTERVAL = 60 * 180;
+    private static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
 
     public MoviesSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -41,8 +40,8 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
 
+        Log.d(LOG_TAG, "onPerformSync up and running");
         String sortType = Utility.getPreferredSortOrder(getContext());
-        Log.d("onPerformSync", sortType);
 
         try{
 
@@ -54,8 +53,6 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             updateDatabaseWithMovies(movieListJsonStr);
 
         } catch (JSONException e) {
-            //it makes sense to return null here, since onPostExecute checks for null,
-            //but need to figure out what's possible with Exceptions within framework overall
             Log.e(LOG_TAG, e.getMessage(), e);
         }
 
@@ -66,6 +63,15 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param context The context used to access the account service
      */
     public static void syncImmediately(Context context) {
+
+        // cancel any pending syncs
+        // http://stackoverflow.com/questions/13132865/cant-perform-sync-onperformsync-is-not-called
+        Account account = getSyncAccount(context);
+        String authority = context.getString(R.string.content_authority);
+        if (ContentResolver.isSyncPending(account, authority) || ContentResolver.isSyncActive(account, authority)) {
+            ContentResolver.cancelSync(account, authority);
+        }
+
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -81,7 +87,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param context The context used to access the account service
      * @return a fake account.
      */
-    public static Account getSyncAccount(Context context) {
+    private static Account getSyncAccount(Context context) {
         // Get an instance of the Android account manager
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
@@ -115,13 +121,16 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     private Void updateDatabaseWithMovies(String moviesJsonStr)
             throws JSONException {
 
+        if (moviesJsonStr == null){
+            return null;
+        }
+
         JSONObject moviesJson = new JSONObject(moviesJsonStr);
         JSONArray moviesList = moviesJson.getJSONArray(AppConstants.RESULTS);
 
         int moviesListLength = moviesList.length();
-        Movie[] movies = new Movie[moviesListLength];
 
-        Vector<ContentValues> cVVector = new Vector<ContentValues>(moviesListLength);
+        Vector<ContentValues> cVVector = new Vector<>(moviesListLength);
 
         for(int i = 0; i < moviesListLength; i++) {
 
@@ -141,10 +150,9 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                 releaseDate = AppConstants.STRING_NO_DATA;
             }
 
-            //TODO: AppConstants
-            Integer movieId = movieObj.getInt("id");
+            Integer movieId = movieObj.getInt(AppConstants.MOVIE_ID);
             Double voteAverage = movieObj.getDouble(AppConstants.VOTE_AVERAGE);
-            Double popularity = movieObj.getDouble("popularity");
+            Double popularity = movieObj.getDouble(AppConstants.POPULARITY);
 
             ContentValues moviesValues = new ContentValues();
 
@@ -175,7 +183,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     /**
      * Helper method to schedule the sync adapter periodic execution
      */
-    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
+    private static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
         Account account = getSyncAccount(context);
         String authority = context.getString(R.string.content_authority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {

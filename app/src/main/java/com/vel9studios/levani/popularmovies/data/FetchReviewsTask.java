@@ -14,9 +14,6 @@ import org.json.JSONObject;
 
 import java.util.Vector;
 
-/**
- * Created by levani on 8/6/15.
- */
 public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
@@ -34,10 +31,10 @@ public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
             mMovieId = params[0];
             MoviesDAO moviesDAO = new MoviesDAO();
             //fetch data from server
-            String videosJSONStr = moviesDAO.getReviews(mMovieId);
+            String reviewsJSONStr = moviesDAO.getReviews(mMovieId);
 
             //get serialized data
-            getVideosDataFromJson(videosJSONStr);
+            getVideosDataFromJson(reviewsJSONStr);
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -46,25 +43,29 @@ public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    private Void getVideosDataFromJson(String videosJsonStr)
+    private Void getVideosDataFromJson(String reviewsJsonStr)
             throws JSONException {
 
-        JSONObject moviesJson = new JSONObject(videosJsonStr);
-        JSONArray videoList = moviesJson.getJSONArray(AppConstants.RESULTS);
+        if (reviewsJsonStr == null){
+            return null;
+        }
 
-        int videoListLength = videoList.length();
+        JSONObject reviewsJson = new JSONObject(reviewsJsonStr);
+        JSONArray reviewsList = reviewsJson.getJSONArray(AppConstants.RESULTS);
 
-        Vector<ContentValues> cVVector = new Vector<ContentValues>(videoListLength);
+        int videoListLength = reviewsList.length();
+
+        Vector<ContentValues> cVVector = new Vector<>(videoListLength);
 
         for(int i = 0; i < videoListLength; i++) {
 
-            JSONObject movieObj = videoList.getJSONObject(i);
+            JSONObject reviewObj = reviewsList.getJSONObject(i);
 
-            Log.d(LOG_TAG, movieObj.toString());
+            Log.d(LOG_TAG, reviewObj.toString());
 
-            String reviewId = Utility.parseMovieContents(movieObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID);
-            String author = Utility.parseMovieContents(movieObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_AUTHOR);
-            String content = Utility.parseMovieContents(movieObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_CONTENT);
+            String reviewId = Utility.parseMovieContents(reviewObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID);
+            String author = Utility.parseMovieContents(reviewObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_AUTHOR);
+            String content = Utility.parseMovieContents(reviewObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_CONTENT);
 
             ContentValues reviewValues = new ContentValues();
 
@@ -76,15 +77,12 @@ public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
             cVVector.add(reviewValues);
         }
 
-        int inserted = 0;
-        // add to database
+        //Insert content values code from "Developing Android Apps: Fundamentals"
         if ( cVVector.size() > 0 ) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
-            inserted = mContext.getContentResolver().bulkInsert(MoviesContract.ReviewsEntry.CONTENT_URI, cvArray);
+            mContext.getContentResolver().bulkInsert(MoviesContract.ReviewsEntry.CONTENT_URI, cvArray);
         }
-
-        Log.d(LOG_TAG, "FetchReviewsTask Complete. " + inserted + " Inserted");
 
         return null;
     }

@@ -35,11 +35,11 @@ public class Utility {
                 context.getString(R.string.pref_sort_default));
     }
 
+    // we want to query our db with the same criteria/sort order the user is querying the API
     public static String getSortOrderQuery(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String sortOrder = prefs.getString(context.getString(R.string.pref_sort_key),
                 context.getString(R.string.pref_sort_default));
-
 
         if (sortOrder.equals(AppConstants.SORT_TYPE_POPULARITY))
             return MoviesContract.MoviesEntry.COLUMN_POPULARITY + " DESC";
@@ -49,6 +49,7 @@ public class Utility {
         return null;
     }
 
+    // returns the toggle state of the favorite flag, if it's current true, return false etc
     public static String getFavoriteFlag(String favoriteInd){
         return (favoriteInd != null && favoriteInd.equals(AppConstants.Y_FLAG))? AppConstants.N_FLAG : AppConstants.Y_FLAG;
     }
@@ -80,6 +81,7 @@ public class Utility {
         return content;
     }
 
+    // displays favorited/unfavorited toast based on record's current state
     public static void displayFavoritesMessage(String favoriteFlag, String movieTitle, Context context){
 
         String favoriteMessage = "";
@@ -89,6 +91,13 @@ public class Utility {
             favoriteMessage = movieTitle + " removed from favorites";
 
         Toast appStart = Toast.makeText(context, favoriteMessage, Toast.LENGTH_LONG);
+        appStart.show();
+    }
+
+    // utility method for display conection error message
+    public static void displayConnectionErrorMessage(Context context){
+
+        Toast appStart = Toast.makeText(context, AppConstants.CONNECTION_ERROR, Toast.LENGTH_LONG);
         appStart.show();
     }
 

@@ -24,23 +24,23 @@ import com.vel9studios.levani.popularmovies.constants.AppConstants;
 
 /**
  * Defines table and column names for the movie database.
- * //Core code from Udacity's "Developing Android Apps: Fundamentals"
+ * Core code from Udacity's "Developing Android Apps: Fundamentals"
  */
 public class MoviesContract {
 
     public static final String CONTENT_AUTHORITY = "com.vel9studios.levani.popularmovies";
 
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String PATH_MOVIES = "movies";
     public static final String PATH_VIDEOS = "videos";
     public static final String PATH_REVIEWS= "reviews";
     public static final String PATH_FAVORITE = "favorite";
 
-    //used in combination with movies to get id for "first" movie
+    // used in combination with movies to get id for "first" movie
     public static final String PATH_FIRST = "first";
 
-    // next three inner classes we define our three main tables, movies, vieos and trailers
+    // next three inner classes define our three main tables, movies, videos and trailers
     public static final class MoviesEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =

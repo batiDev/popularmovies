@@ -14,7 +14,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.bean.Movie;
 import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
 import com.vel9studios.levani.popularmovies.data.FetchReviewsTask;
 import com.vel9studios.levani.popularmovies.views.ReviewsAdapter;
@@ -27,14 +26,12 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
 
     private TextView mNoReviews;
     private ReviewsAdapter mReviewsAdapter;
-    private ListView mReviewsListView;
 
     //Uris
     private Uri mReviewsUri;
 
     private static final int REVIEWS_LOADER = 1;
 
-    private Movie movie;
     public ReviewsFragment() {
 
     }
@@ -63,9 +60,9 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         //set text elements
         View rootView = inflater.inflate(R.layout.fragment_reviews, container, false);
 
-        mReviewsListView = (ListView) rootView.findViewById(R.id.listview_reviews);
+        ListView reviewsListView = (ListView) rootView.findViewById(R.id.listview_reviews);
         mReviewsAdapter = new ReviewsAdapter(getActivity(), null, 0);
-        mReviewsListView.setAdapter(mReviewsAdapter);
+        reviewsListView.setAdapter(mReviewsAdapter);
 
         mNoReviews = (TextView) rootView.findViewById(R.id.no_reviews_text);
 
@@ -104,12 +101,10 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
             if (loader.getId() == REVIEWS_LOADER){
                 mReviewsAdapter.swapCursor(cursor);
             }
-
             // hide "no reviews" message
             mNoReviews.setVisibility(View.GONE);
 
         } else {
-
             // show "no reviews" message
             mNoReviews.setVisibility(View.VISIBLE);
         }

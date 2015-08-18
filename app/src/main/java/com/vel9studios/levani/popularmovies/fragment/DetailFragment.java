@@ -11,7 +11,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,14 +51,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mReleaseDate;
     private TextView mVoteAverage;
     private TextView mMovieOverview;
-    private String mFavoriteInd;
     private ImageButton mFavorite;
     private TextView mReviews;
     private ImageView mPoster;
+    private ListView mTrailerListView;
 
     // video/trailer values
     private TrailerAdapter mTrailerAdapter;
-    private ListView mTrailerListView;
 
     //Uris
     private Uri mUri;
@@ -80,6 +78,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         MenuItem menuItem = menu.findItem(R.id.action_share);
 
         // Get the provider and hold onto it to set/change the share intent.
+        // share intent code from Developing Android Apps: Fundamentals course
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
         if (mFirstVideoYouTubeKey != null){
@@ -90,7 +89,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private Intent createShareVideoIntent(String youTubeVideoKey) {
 
-        //code from Developing Android Apps: Fundamentals course
+        // code from Developing Android Apps: Fundamentals course
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
@@ -123,13 +122,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         ViewGroup header = (ViewGroup)inflater.inflate(R.layout.movie_details, mTrailerListView, false);
         mTrailerListView.addHeaderView(header, null, false);
 
+        // get the trailer adapter going
         mTrailerListView.setAdapter(mTrailerAdapter);
         mTrailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // CursorAdapter returns a cursor at the correct position for getItem(), or null
-                // if it cannot seek to that position.
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null) {
 
@@ -155,19 +153,24 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        //start the loader when activity is recreated even if movieId is already present
         super.onActivityCreated(savedInstanceState);
     }
 
-    public void onSortOrderChanged(String sortType){
+    public void onSortOrderChanged(){
 
         mUri = null;
+        mVideosUri = null;
+        // restart the loader to reflect the updated sortorder change state
         getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 
-    public void onFavoriteToggle()
-    {
+    public void onFavoriteToggle() {
+
         getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+
     }
 
     @Override
@@ -181,7 +184,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             String sortOrder = null;
             if (mUri != null)
                 moveDetailUri =  mUri;
-            else{
+            else {
                 sortOrder = Utility.getSortOrderQuery(getActivity());
                 moveDetailUri = MoviesContract.MoviesEntry.buildFirstMovieUri();
             }
@@ -214,90 +217,95 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
-        if (cursor != null && cursor.moveToFirst()) {
+        int currentLoader = loader.getId();
+        if (currentLoader == DETAIL_LOADER && cursor.moveToFirst()){
+            // update details view
+            String movieTitle = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_TITLE_ID);
+            mTitle.setText(movieTitle);
+            mReleaseDate.setText(cursor.getString(DetailFragmentConstants.COLUMN_RELEASE_DATE_ID));
+            mVoteAverage.setText(String.valueOf(cursor.getDouble(DetailFragmentConstants.COLUMN_VOTE_AVERAGE_ID)));
+            mMovieOverview.setText(cursor.getString(DetailFragmentConstants.COLUMN_OVERVIEW_ID));
 
-            int currentLoader = loader.getId();
-            if (currentLoader == DETAIL_LOADER){
+            String currentMovieId = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_ID);
+            getVideos(currentMovieId);
+            mMovieId = currentMovieId;
 
-                // update details view
-                String movieTitle = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_TITLE_ID);
-                mTitle.setText(movieTitle);
+            //http://stackoverflow.com/questions/21114025/how-to-change-only-the-image-inside-an-imagebutton-and-not-the-whole-imagebutton
+            String favoriteInd = cursor.getString(DetailFragmentConstants.COLUMN_FAVORITE_IND_ID);
+            setFavoriteState(favoriteInd);
 
-                String releaseDate = cursor.getString(DetailFragmentConstants.COLUMN_RELEASE_DATE_ID);
+            // load image
+            String posterPath = cursor.getString(DetailFragmentConstants.COLUMN_IMAGE_PATH_ID);
+            String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.DETAIL_IMAGE_QUERY_WIDTH + posterPath;
+            loadImage(fullPosterPath);
 
-                mReleaseDate.setText(cursor.getString(DetailFragmentConstants.COLUMN_RELEASE_DATE_ID));
-                mVoteAverage.setText(String.valueOf(cursor.getDouble(DetailFragmentConstants.COLUMN_VOTE_AVERAGE_ID)));
-                mMovieOverview.setText(cursor.getString(DetailFragmentConstants.COLUMN_OVERVIEW_ID));
+            // gather values for saving movie to favorites
+            ArrayList<String> favoriteValues = new ArrayList<>();
+            favoriteValues.add(mMovieId);
+            favoriteValues.add(favoriteInd);
+            favoriteValues.add(movieTitle);
+            mFavorite.setTag(favoriteValues);
 
-                String currentMovieId = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_ID);
+            // set value for launching ReviewsActivity
+            mReviews.setTag(mMovieId);
 
-                getVideos(currentMovieId);
+        } else if (currentLoader == VIDEO_LOADER) {
 
-                mMovieId = currentMovieId;
-
-                //http://stackoverflow.com/questions/21114025/how-to-change-only-the-image-inside-an-imagebutton-and-not-the-whole-imagebutton
-                mFavoriteInd = cursor.getString(DetailFragmentConstants.COLUMN_FAVORITE_IND_ID);
-                if (mFavoriteInd != null && mFavoriteInd.equals(AppConstants.Y_FLAG))
-                    mFavorite.setImageResource(android.R.drawable.btn_star_big_on);
-                else
-                    mFavorite.setImageResource(android.R.drawable.btn_star_big_off);
-
-                String posterPath = cursor.getString(DetailFragmentConstants.COLUMN_IMAGE_PATH_ID);
-                String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.DETAIL_IMAGE_QUERY_WIDTH + posterPath;
-                Resources resources = getResources();
-                int height = resources.getInteger(R.integer.grid_image_height);
-                int width = resources.getInteger(R.integer.grid_image_width);
-
-                Picasso.with(getActivity())
-                        .load(fullPosterPath)
-                        .resize(width, height)
-                        .error(R.drawable.unavailable_poster_black)
-                        .into(mPoster);
-
-                // gather values for saving movie to favorites
-                ArrayList<String> favoriteValues = new ArrayList<>();
-                favoriteValues.add(mMovieId);
-                favoriteValues.add(mFavoriteInd);
-                favoriteValues.add(movieTitle);
-                mFavorite.setTag(favoriteValues);
-
-                // set value for launching ReviewsActivity
-                mReviews.setTag(mMovieId);
-
-            } else if (currentLoader == VIDEO_LOADER) {
-
-                if (cursor.moveToFirst()){
-                    //get youtube video key for first trailer and create share video intent
-                    mFirstVideoYouTubeKey = cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_KEY);
-                    if (mShareActionProvider != null)
-                        mShareActionProvider.setShareIntent(createShareVideoIntent(mFirstVideoYouTubeKey));
-                }
-
-                mTrailerAdapter.swapCursor(cursor);
+            if (cursor.moveToFirst()){
+                // get youtube video key for first trailer and create share video intent
+                mFirstVideoYouTubeKey = cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_KEY);
+                if (mShareActionProvider != null)
+                    mShareActionProvider.setShareIntent(createShareVideoIntent(mFirstVideoYouTubeKey));
             }
+
+            mTrailerAdapter.swapCursor(cursor);
         }
+
+    }
+
+    private void setFavoriteState(String favoriteInd){
+
+        if (favoriteInd != null && favoriteInd.equals(AppConstants.Y_FLAG))
+            mFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+        else
+            mFavorite.setImageResource(android.R.drawable.btn_star_big_off);
+    }
+
+    private void loadImage(String fullPosterPath){
+
+        Resources resources = getResources();
+        int height = resources.getInteger(R.integer.grid_image_height);
+        int width = resources.getInteger(R.integer.grid_image_width);
+
+        Picasso.with(getActivity())
+                .load(fullPosterPath)
+                .resize(width, height)
+                .error(R.drawable.unavailable_poster_black)
+                .into(mPoster);
     }
 
     private void getVideos(String currentMovieId) {
 
+        LoaderManager loaderManager = getLoaderManager();
         // if displaying details for a new movie, fetch videos
         if (mMovieId == null || !mMovieId.equals(currentMovieId) ){
 
+            mVideosUri = MoviesContract.VideosEntry.buildVideosUri(currentMovieId);
             FetchVideosTask fetchVideosTask = new FetchVideosTask(getActivity());
             fetchVideosTask.execute(currentMovieId);
-            mVideosUri = MoviesContract.VideosEntry.buildVideosUri(currentMovieId);
-        }
 
-        //start the loader when activity is recreated even if movieId is already present
-        getLoaderManager().initLoader(VIDEO_LOADER, null, this);
+            if (loaderManager.getLoader(VIDEO_LOADER) != null){
+                loaderManager.restartLoader(VIDEO_LOADER, null, this);
+                return;
+            }
+
+        }
+        loaderManager.initLoader(VIDEO_LOADER, null, this);
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save the user's current game state
         savedInstanceState.putString(AppConstants.MOVIE_ID_TAG, mMovieId);
-
-        // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
 

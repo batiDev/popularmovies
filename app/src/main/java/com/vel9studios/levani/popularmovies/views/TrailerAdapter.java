@@ -12,7 +12,7 @@ import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
 
 /**
- * {@link TrailerAdapter} exposes a list of weather forecasts
+ * {@link TrailerAdapter} exposes a list of trailers
  * from a {@link Cursor} to a {@link android.widget.ListView}.
  */
 public class TrailerAdapter extends CursorAdapter {
@@ -23,9 +23,6 @@ public class TrailerAdapter extends CursorAdapter {
         super(context, c, flags);
     }
 
-    /*
-        Remember that these views are reused as needed.
-     */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
 
@@ -36,7 +33,7 @@ public class TrailerAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        // Read date from cursor
+        // Read trailer from cursor
         TextView trailerName = (TextView) view.findViewById(R.id.list_item_trailer_name);
         trailerName.setText(cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_NAME));
     }

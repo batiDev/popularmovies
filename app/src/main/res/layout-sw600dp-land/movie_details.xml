@@ -19,15 +19,13 @@
             android:id="@+id/detail_movie_image"
             android:layout_width="@dimen/detail_image_width"
             android:layout_height="@dimen/detail_image_height"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
+            android:padding="@dimen/detail_image_padding_default"
             android:layout_gravity="center"
             />
 
         <LinearLayout
             android:paddingLeft="@dimen/abc_button_padding_horizontal_material"
+            android:paddingRight="@dimen/abc_button_padding_horizontal_material"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:orientation="vertical"
@@ -38,13 +36,13 @@
                 android:id="@+id/detail_reviews"
                 android:layout_width="wrap_content"
                 android:textColor="@color/primary_color"
-                android:text="Reviews"
+                android:text="@string/reviews_button_text"
                 android:onClick="launchReviews"
                 android:layout_height="wrap_content"/>
 
             <!-- release date -->
             <TextView
-                android:padding="2dp"
+                android:padding="@dimen/movie_details_padding_default"
                 android:id="@+id/detail_movie_release_date"
                 android:layout_width="wrap_content"
                 android:textSize="@dimen/release_date_text"
@@ -52,20 +50,20 @@
 
             <!-- rating -->
             <LinearLayout
-                android:padding="2dp"
+                android:padding="@dimen/movie_details_padding_default"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:orientation="horizontal">
 
                 <TextView
-                    android:padding="2dp"
+                    android:padding="@dimen/movie_details_padding_default"
                     android:id="@+id/detail_movie_vote_average_label"
                     android:text="@string/rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
                 <TextView
-                    android:padding="2dp"
+                    android:padding="@dimen/movie_details_padding_default"
                     android:id="@+id/detail_movie_vote_average"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -76,7 +74,7 @@
 
             <!-- favorite star -->
             <ImageButton
-                android:padding="2dp"
+                android:padding="@dimen/movie_details_padding_default"
                 android:id="@+id/detail_favorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

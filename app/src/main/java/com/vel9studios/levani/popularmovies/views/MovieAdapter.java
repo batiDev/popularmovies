@@ -15,8 +15,8 @@ import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.fragment.PopularMoviesFragment;
 
 /**
- * {@link MovieAdapter} exposes a list of weather forecasts
- * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
+ * {@link MovieAdapter} exposes a grid of movies
+ * from a {@link android.database.Cursor} to a {@link android.widget.GridView}.
  */
 public class MovieAdapter extends CursorAdapter {
 
@@ -26,9 +26,6 @@ public class MovieAdapter extends CursorAdapter {
         super(context, c, flags);
     }
 
-    /*
-        Remember that these views are reused as needed.
-     */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
 
@@ -39,14 +36,12 @@ public class MovieAdapter extends CursorAdapter {
 
     private void loadImage(ImageView imageView, String posterPath){
 
-        //retrieve image dimension constants
+        //retrieve desired image dimension constants
         Resources resources = mContext.getResources();
         int height = resources.getInteger(R.integer.grid_image_height);
         int width = resources.getInteger(R.integer.grid_image_width);
 
         //basic error-handling, if there's no poster data, load generic image
-        //Picasso has a .error() function but there seems to be a known issue with
-        //sizing? https://github.com/square/picasso/issues/427
         String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.GRID_IMAGE_QUERY_WIDTH + posterPath;
 
         Picasso.with(mContext)

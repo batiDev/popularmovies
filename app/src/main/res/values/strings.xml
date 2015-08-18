@@ -22,5 +22,6 @@
 
     <!--reviews-->
     <string name="no_reviews">No reviews available.</string>
+    <string name="reviews_button_text">Reviews</string>
 
 </resources>

@@ -15,8 +15,7 @@ import com.vel9studios.levani.popularmovies.fragment.ReviewsFragment;
 public class ReviewActivity extends AppCompatActivity {
 
     private final String LOG_TAG = ReviewActivity.class.getSimpleName();
-    public static final String REVEWS_URI = "URI";
-    Uri mUri = null;
+    private Uri mUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +34,6 @@ public class ReviewActivity extends AppCompatActivity {
                     .add(R.id.movie_detail_container, fragment)
                     .commit();
         }
-
 
     }
 

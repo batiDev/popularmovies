@@ -2,7 +2,7 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="2dp"
+    android:padding="@dimen/movie_details_padding_default"
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
     android:orientation="vertical">
@@ -15,7 +15,6 @@
         android:layout_gravity="start"
         >
 
-
         <LinearLayout
             android:layout_height="wrap_content"
             android:layout_width="0dp"
@@ -26,14 +25,14 @@
                 android:id="@+id/detail_movie_image"
                 android:layout_width="@dimen/detail_image_width"
                 android:layout_height="@dimen/detail_image_height"
-                android:padding="4dp"
+                android:padding="@dimen/detail_image_padding_default"
                 android:layout_gravity="center"
                 />
 
             <!-- overview text content -->
             <TextView
-                android:layout_margin="4dp"
-                android:padding="2dp"
+                android:layout_margin="@dimen/detail_image_padding_default"
+                android:padding="@dimen/movie_details_padding_default"
                 android:id="@+id/detail_movie_overview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -41,45 +40,42 @@
         </LinearLayout>
 
         <LinearLayout
-            android:paddingLeft="@dimen/abc_button_padding_horizontal_material"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
-            android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:padding="@dimen/movie_details_padding_default"
+                android:id="@+id/detail_movie_release_date"
+                android:layout_width="wrap_content"
+                android:textSize="@dimen/release_date_text"
+                android:layout_height="wrap_content"/>
 
             <!-- reviews -->
             <Button
                 android:id="@+id/detail_reviews"
                 android:layout_width="wrap_content"
                 android:textColor="@color/primary_color"
-                android:text="Reviews"
+                android:text="@string/reviews_button_text"
                 android:onClick="launchReviews"
                 android:layout_height="wrap_content"/>
 
-            <!-- release date -->
-            <TextView
-                android:padding="2dp"
-                android:id="@+id/detail_movie_release_date"
-                android:layout_width="wrap_content"
-                android:textSize="@dimen/release_date_text"
-                android:layout_height="wrap_content"/>
-
-            <!-- rating -->
             <LinearLayout
-                android:padding="2dp"
+                android:padding="@dimen/movie_details_padding_default"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:orientation="horizontal">
 
                 <TextView
-                    android:padding="2dp"
+                    android:padding="@dimen/movie_details_padding_default"
                     android:id="@+id/detail_movie_vote_average_label"
                     android:text="@string/rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
                 <TextView
-                    android:padding="2dp"
+                    android:padding="@dimen/movie_details_padding_default"
                     android:id="@+id/detail_movie_vote_average"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -88,9 +84,8 @@
 
             </LinearLayout>
 
-            <!-- favorite star -->
             <ImageButton
-                android:padding="2dp"
+                android:padding="@dimen/movie_details_padding_default"
                 android:id="@+id/detail_favorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
