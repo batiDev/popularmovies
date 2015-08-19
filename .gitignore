@@ -4,5 +4,6 @@
 /.idea/libraries
 .DS_Store
 /build
+/app/src/androidTest
 /captures
 /app/src/main/java/com/vel9studios/levani/popularmovies/constants/AppConstantsPrivate.java

@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
     private String mActiveSortType;
     private boolean mTwoPane;
+    private boolean mShowFavorites;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,10 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
         mActiveSortType = Utility.getPreferredSortOrder(this);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState != null){
+            mShowFavorites = savedInstanceState.getBoolean(AppConstants.FAVORITE_IND);
+        }
 
         // two-pane code from Developing Android Apps: Fundamentals course
         if (findViewById(R.id.movie_detail_container) != null) {
@@ -61,12 +66,16 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        //maintain favorite setting state/text
+        MenuItem item = menu.findItem(R.id.action_favorites);
+        setFavoritesMenuText(item);
+
         return true;
     }
 
     @Override
     protected void onResume() {
-
         super.onResume();
 
         String sortType = Utility.getPreferredSortOrder(this);
@@ -138,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
         Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(movieId, favoriteFlag);
         int updated = this.getContentResolver().update(favoriteUri, null, null, null);
 
-        if (updated == 1){
+        if (updated == 1) {
             Utility.displayFavoritesMessage(favoriteFlag, movieTitle, this);
         }
 
@@ -166,15 +175,22 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
             PopularMoviesFragment popularMoviesFragment = (PopularMoviesFragment)getSupportFragmentManager().findFragmentById(R.id.popular_movies_fragment);
             if (popularMoviesFragment != null) {
-                Boolean showFavorites = popularMoviesFragment.onFavoritesChanged();
-                Resources resources = getResources();
-
-                if (showFavorites) item.setTitle(resources.getString(R.string.action_favorites_hide));
-                else item.setTitle(resources.getString(R.string.action_favorites_show));
+                //toggle mShowFavorites value
+                mShowFavorites = !mShowFavorites;
+                popularMoviesFragment.onFavoritesChanged(mShowFavorites);
+                setFavoritesMenuText(item);
             }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setFavoritesMenuText(MenuItem item){
+
+        Resources resources = getResources();
+        if (mShowFavorites) item.setTitle(resources.getString(R.string.action_favorites_hide));
+        else item.setTitle(resources.getString(R.string.action_favorites_show));
+
     }
 
     @Override
@@ -207,6 +223,12 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
             Intent intent = new Intent(this, DetailActivity.class).setData(contentUri);
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(AppConstants.FAVORITE_IND, mShowFavorites);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
 
