@@ -4,7 +4,7 @@ Popular Movies app features:
 - Master-detail layout in tablet mode
 - Content Provider using local SQLLite database
 - "Favorites" functionality:
-	- favorite/unfavorite a movie, 
+	- favorite/unfavorite a movie
 	- persist favorite state
 - SyncAdapter implementation
 - Intents:
