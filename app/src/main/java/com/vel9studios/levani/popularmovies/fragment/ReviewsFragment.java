@@ -44,17 +44,16 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         if (arguments != null) {
 
             mReviewsUri = arguments.getParcelable(REVIEWS_URI);
+            if (mReviewsUri != null){
+                // get movieId we want to view reviews for
+                String movieId = mReviewsUri.getLastPathSegment();
+                // get the reviews
+                if (savedInstanceState == null){
 
-            // get movieId we want to view reviews for
-            String movieId = mReviewsUri.getLastPathSegment();
-
-            // get the reviews
-            if (savedInstanceState == null){
-
-                FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
-                fetchReviewsTask.execute(movieId);
+                    FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
+                    fetchReviewsTask.execute(movieId);
+                }
             }
-
         }
 
         //set text elements
@@ -63,8 +62,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         ListView reviewsListView = (ListView) rootView.findViewById(R.id.listview_reviews);
         mReviewsAdapter = new ReviewsAdapter(getActivity(), null, 0);
         reviewsListView.setAdapter(mReviewsAdapter);
-
-        mNoReviews = (TextView) rootView.findViewById(R.id.no_reviews_text);
+        reviewsListView.setEmptyView(rootView.findViewById(R.id.listview_reviews_empty));
 
         return rootView;
     }
@@ -101,12 +99,6 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
             if (loader.getId() == REVIEWS_LOADER){
                 mReviewsAdapter.swapCursor(cursor);
             }
-            // hide "no reviews" message
-            mNoReviews.setVisibility(View.GONE);
-
-        } else {
-            // show "no reviews" message
-            mNoReviews.setVisibility(View.VISIBLE);
         }
     }
 

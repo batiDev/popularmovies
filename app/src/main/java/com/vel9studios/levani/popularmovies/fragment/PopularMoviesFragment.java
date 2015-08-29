@@ -14,8 +14,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.vel9studios.levani.popularmovies.R;
+import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 import com.vel9studios.levani.popularmovies.sync.MoviesSyncAdapter;
 import com.vel9studios.levani.popularmovies.util.Utility;
@@ -29,7 +31,6 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     private Boolean mShowFavorites = false;
     private int mPosition = ListView.INVALID_POSITION;
 
-    private static final String SELECTED_KEY = "selected_position";
     private GridView mGridView;
     private static final int MOVIES_LOADER = 0;
 
@@ -86,10 +87,14 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         View view = rootView.findViewById(R.id.grid_item_movie_image);
 
+        // check API key
         if (Validation.appContainsAPIKey(context)){
 
             mMoviesAdapter = new MovieAdapter(context, null, 0);
             mGridView = (GridView) view;
+
+            // will display the view pass into setEmptyView if no data is available
+            mGridView.setEmptyView(rootView.findViewById(R.id.empty_grid_view));
 
             mGridView.setAdapter(mMoviesAdapter);
 
@@ -111,8 +116,8 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
 
             });
 
-            if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-                mPosition = savedInstanceState.getInt(SELECTED_KEY);
+            if (savedInstanceState != null && savedInstanceState.containsKey(AppConstants.SELECTED_KEY)) {
+                mPosition = savedInstanceState.getInt(AppConstants.SELECTED_KEY);
             }
 
         }
@@ -127,7 +132,7 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
         // so check for that before storing.
         // Core code from Udacity's "Developing Android Apps: Fundamentals"
         if (mPosition != GridView.INVALID_POSITION) {
-            outState.putInt(SELECTED_KEY, mPosition);
+            outState.putInt(AppConstants.SELECTED_KEY, mPosition);
         }
         super.onSaveInstanceState(outState);
     }
@@ -155,7 +160,12 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
-        if (mMoviesAdapter != null) mMoviesAdapter.swapCursor(cursor);
+        if (mMoviesAdapter != null) {
+            mMoviesAdapter.swapCursor(cursor);
+            // check if movie data is present
+            if (mMoviesAdapter.getCount() == 0)
+                updateEmptyView();
+        }
 
         // Core code from Udacity's "Developing Android Apps: Fundamentals"
         if (mPosition != GridView.INVALID_POSITION) {
@@ -168,6 +178,19 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mMoviesAdapter.swapCursor(null);
+    }
+
+    private void updateEmptyView() {
+        TextView tv = (TextView) getView().findViewById(R.id.empty_grid_view);
+        if (tv != null) {
+            int message = R.string.no_movies_general;
+            // if there's no data, check if it's due to lack of network connectivity
+            Boolean isAvailable = Utility.isNetworkAvailable(getActivity());
+            if (!isAvailable)
+                message = R.string.no_movies_network_unavailable;
+
+            tv.setText(message);
+        }
     }
 
 }

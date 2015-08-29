@@ -58,4 +58,10 @@ public class AppConstants {
     public static final String FAVORITE_IND = "favoriteInd";
     public static final String MOVIE_ID_TAG = "movieId";
 
+    public static final String SELECTED_KEY = "selected_position";
+
+    // server status
+    public static final int LOCATION_STATUS_OK = 0;
+    public static final int LOCATION_STATUS_SERVER_DOWN = 1;
+
 }

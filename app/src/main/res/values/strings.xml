@@ -22,6 +22,10 @@
 
     <!--reviews-->
     <string name="no_reviews">No reviews available.</string>
+    <string name="no_trailers">No trailers available.</string>
+    <string name="no_movies_general">An error occured while retrieving movies, please try again.</string>
+    <string name="no_movies_network_unavailable">No available network connection, please try again.</string>
+
     <string name="reviews_button_text">Reviews</string>
 
 </resources>

@@ -55,6 +55,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mReviews;
     private ImageView mPoster;
     private ListView mTrailerListView;
+    private TextView mNoTrailersView;
 
     // video/trailer values
     private TrailerAdapter mTrailerAdapter;
@@ -117,13 +118,18 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         /* Add overview into the list view to take advantage of the built-in scrolling.
          * Avoids the "ListView in ScrollView" problem
          * http://stackoverflow.com/questions/7978359/using-listview-how-to-add-a-header-view
+         *
+         * Note: I feel like there should be a better way of doing this. When implementing
+         * RecyclerView into future projects, look into this type of scrolling handling.
          */
         mTrailerListView = (ListView) rootView.findViewById(R.id.listview_trailers);
+
         ViewGroup header = (ViewGroup)inflater.inflate(R.layout.movie_details, mTrailerListView, false);
         mTrailerListView.addHeaderView(header, null, false);
 
         // get the trailer adapter going
         mTrailerListView.setAdapter(mTrailerAdapter);
+
         mTrailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -147,6 +153,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mPoster = (ImageView) rootView.findViewById(R.id.detail_movie_image);
         mFavorite = (ImageButton) rootView.findViewById(R.id.detail_favorite);
         mReviews = (TextView) rootView.findViewById(R.id.detail_reviews);
+        mNoTrailersView = (TextView) rootView.findViewById(R.id.listview_trailers_empty);
 
         return rootView;
     }
@@ -252,11 +259,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         } else if (currentLoader == VIDEO_LOADER) {
 
             if (cursor.moveToFirst()){
+
+
                 // get youtube video key for first trailer and create share video intent
                 mFirstVideoYouTubeKey = cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_KEY);
                 if (mShareActionProvider != null)
                     mShareActionProvider.setShareIntent(createShareVideoIntent(mFirstVideoYouTubeKey));
+
+                // hide the "no trailers" message. Ideally this would be possible with setEmptyView
+                // but due to the way I am adding layouts into trailer list view, that methods ends up
+                // overwriting the movie details layout. Revisit.
+                mNoTrailersView.setVisibility(View.GONE);
+            } else {
+
+                mNoTrailersView.setVisibility(View.VISIBLE);
             }
+
 
             mTrailerAdapter.swapCursor(cursor);
         }

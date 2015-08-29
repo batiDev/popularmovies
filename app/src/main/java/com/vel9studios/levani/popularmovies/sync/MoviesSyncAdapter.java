@@ -11,6 +11,7 @@ import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.R;
@@ -23,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Vector;
 
 public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
@@ -32,6 +35,10 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     // 60 seconds (1 minute) * 180 = 3 hours
     private static final int SYNC_INTERVAL = 60 * 180;
     private static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({AppConstants.LOCATION_STATUS_OK, AppConstants.LOCATION_STATUS_SERVER_DOWN})
+    public @interface LocationStatus {}
 
     public MoviesSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -45,7 +52,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
         try{
 
-            MoviesDAO moviesDAO = new MoviesDAO();
+            MoviesDAO moviesDAO = new MoviesDAO(getContext());
             //fetch data from server
             String movieListJsonStr = moviesDAO.getMovieData(sortType);
 

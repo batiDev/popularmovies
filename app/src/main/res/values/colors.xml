@@ -10,4 +10,7 @@
     <color name="black">#000000</color>
     <color name="dark_grey">#222222</color>
 
+    <color name="error_text">#616161</color>
+    <color name="error_background">#FFB300</color>
+
 </resources>

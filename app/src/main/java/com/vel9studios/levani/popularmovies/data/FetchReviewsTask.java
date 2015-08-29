@@ -29,7 +29,7 @@ public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
         try{
 
             mMovieId = params[0];
-            MoviesDAO moviesDAO = new MoviesDAO();
+            MoviesDAO moviesDAO = new MoviesDAO(mContext);
             //fetch data from server
             String reviewsJSONStr = moviesDAO.getReviews(mMovieId);
 

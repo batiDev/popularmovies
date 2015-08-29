@@ -17,6 +17,8 @@ package com.vel9studios.levani.popularmovies.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -94,11 +96,16 @@ public class Utility {
         appStart.show();
     }
 
-    // utility method for display conection error message
-    public static void displayConnectionErrorMessage(Context context){
+    // check network availability
+    public static Boolean isNetworkAvailable(Context context) {
 
-        Toast appStart = Toast.makeText(context, AppConstants.CONNECTION_ERROR, Toast.LENGTH_LONG);
-        appStart.show();
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        if (activeNetwork != null && activeNetwork.isConnectedOrConnecting())
+            return true;
+
+        return false;
     }
 
 }

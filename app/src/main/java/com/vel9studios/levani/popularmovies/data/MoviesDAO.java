@@ -1,5 +1,6 @@
 package com.vel9studios.levani.popularmovies.data;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -19,6 +20,12 @@ import java.net.URL;
 public class MoviesDAO {
 
     private final String LOG_TAG = MoviesDAO.class.getSimpleName();
+
+    private final Context mContext;
+
+    public MoviesDAO (Context context){
+        this.mContext = context;
+    }
 
     /**
      * Core code from Udacity gist: https://gist.github.com/udacityandroid/d6a7bb21904046a91695
@@ -79,7 +86,11 @@ public class MoviesDAO {
 
         } catch (IOException e) {
             Log.e(LOG_TAG,AppConstants.CONNECTION_ERROR);
+            //if (mContext != null)
+                //setLocationStatus(mContext, AppConstants.LOCATION_STATUS_SERVER_DOWN);
+
             return null;
+
 
         } finally{
             if (urlConnection != null) {
@@ -129,5 +140,18 @@ public class MoviesDAO {
 
         return getJSON(uri);
     }
+
+    /**
+     * Sets the location status into shared preference.  This function should not be called from
+     * the UI thread because it uses commit to write to the shared preferences.
+     * @param c Context to get the PreferenceManager from.
+     * @param locationStatus The IntDef value to set
+     */
+//    static private void setLocationStatus(Context c, @LocationStatus int locationStatus){
+//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+//        SharedPreferences.Editor spe = sp.edit();
+//        spe.putInt(c.getString(R.string.pref_location_status_key), locationStatus);
+//        spe.commit();
+//    }
 
 }

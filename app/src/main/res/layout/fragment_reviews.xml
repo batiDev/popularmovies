@@ -15,11 +15,10 @@
         android:layout_height="match_parent" />
 
     <TextView
-        android:id="@+id/no_reviews_text"
+        android:id="@+id/listview_reviews_empty"
         android:textSize="@dimen/abc_text_size_medium_material"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_reviews"
-        android:visibility="gone"/>
+        android:text="@string/no_reviews"/>
 
 </FrameLayout>

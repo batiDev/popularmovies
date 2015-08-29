@@ -17,4 +17,16 @@
         android:gravity="center"
         />
 
+    <!-- no data error message view -->
+    <TextView
+        android:id="@+id/empty_grid_view"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:background="@color/error_background"
+        android:textColor="@color/error_text"
+        android:padding="@dimen/default_padding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_movies_general"
+        android:visibility="gone" />
+
 </FrameLayout>
