@@ -36,10 +36,6 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int SYNC_INTERVAL = 60 * 180;
     private static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({AppConstants.LOCATION_STATUS_OK, AppConstants.LOCATION_STATUS_SERVER_DOWN})
-    public @interface LocationStatus {}
-
     public MoviesSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
@@ -47,7 +43,6 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
 
-        Log.d(LOG_TAG, "onPerformSync up and running");
         String sortType = Utility.getPreferredSortOrder(getContext());
 
         try{
