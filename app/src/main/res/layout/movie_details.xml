@@ -7,89 +7,98 @@
     android:layout_width="wrap_content"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_height="wrap_content"
+    <!-- Detail Layout for Grid -->
+    <android.support.v7.widget.GridLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:baselineAligned="false"
-        android:layout_gravity="start"
-        >
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:elevation="@dimen/default_elevation"
+        app:columnCount="2">
 
+        <!-- poster -->
         <ImageView
             android:id="@+id/detail_movie_image"
+            app:layout_columnSpan="1"
+            app:layout_rowSpan="3"
+            app:layout_columnWeight="1"
             android:layout_width="@dimen/detail_image_width"
             android:layout_height="@dimen/detail_image_height"
             android:padding="@dimen/detail_image_padding_default"
-            android:layout_gravity="center"
-            />
+            app:layout_gravity="center" />
 
+        <!-- release date -->
+        <TextView
+            android:padding="@dimen/movie_details_padding_default"
+            android:id="@+id/detail_movie_release_date"
+            android:textSize="@dimen/abc_text_size_display_1_material"
+            android:gravity="center_vertical"
+            app:layout_columnSpan="1"
+            app:layout_rowWeight="1"
+            app:layout_columnWeight="1"
+            app:layout_gravity="left"/>
+
+        <!-- rating -->
         <LinearLayout
-            android:paddingLeft="@dimen/abc_button_padding_horizontal_material"
-            android:paddingRight="@dimen/abc_button_padding_horizontal_material"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:orientation="vertical"
-            android:layout_weight="2">
+            android:padding="@dimen/movie_details_padding_default"
+            android:gravity="center_vertical"
+            app:layout_columnSpan="1"
+            app:layout_rowWeight="1"
+            app:layout_gravity="left"
+            android:orientation="vertical">
 
-            <!-- reviews -->
-            <Button
-                android:id="@+id/detail_reviews"
-                android:layout_width="wrap_content"
-                android:textColor="@color/primary_color"
-                android:text="@string/reviews_button_text"
-                android:onClick="launchReviews"
-                android:layout_height="wrap_content"/>
-
-            <!-- release date -->
             <TextView
                 android:padding="@dimen/movie_details_padding_default"
-                android:id="@+id/detail_movie_release_date"
+                android:id="@+id/detail_movie_vote_average"
                 android:layout_width="wrap_content"
-                android:textSize="@dimen/release_date_text"
+                android:layout_height="wrap_content"
+                android:textStyle="italic|bold"
+                android:textSize="@dimen/abc_text_size_display_1_material"
+                android:textColor="@color/primary_color"/>
+
+            <TextView
+                android:padding="@dimen/movie_details_padding_default"
+                android:id="@+id/detail_movie_vote_average_label"
+                android:text="@string/rating"
+                android:textSize="@dimen/abc_text_size_small_material"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-
-            <!-- rating -->
-            <LinearLayout
-                android:padding="@dimen/movie_details_padding_default"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:padding="@dimen/movie_details_padding_default"
-                    android:id="@+id/detail_movie_vote_average_label"
-                    android:text="@string/rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:padding="@dimen/movie_details_padding_default"
-                    android:id="@+id/detail_movie_vote_average"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="italic|bold"
-                    android:textColor="@color/primary_color"/>
-
-            </LinearLayout>
-
-            <!-- favorite star -->
-            <ImageButton
-                android:padding="@dimen/movie_details_padding_default"
-                android:id="@+id/detail_favorite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="setFavorite"
-                android:background="#00ffffff" />
 
         </LinearLayout>
 
-    </LinearLayout>
+        <!-- favorite star -->
+        <ImageButton
+            android:id="@+id/detail_favorite"
+            app:layout_columnSpan="1"
+            app:layout_rowWeight="2"
+            app:layout_gravity="left"
+            android:onClick="setFavorite"
+            android:background="#00ffffff" />
+
+        <!-- reviews -->
+        <Button
+            android:padding="@dimen/default_padding"
+            android:id="@+id/detail_reviews"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            app:layout_columnSpan="2"
+            android:textColor="@color/primary_color"
+            android:text="@string/reviews_button_text"
+            android:onClick="launchReviews"
+            />
+
+    </android.support.v7.widget.GridLayout>
+
+
 
     <!-- overview text content -->
     <TextView
         android:padding="@dimen/default_padding"
         android:id="@+id/detail_movie_overview"
+        android:background="@color/overview_background"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        />
 
 </LinearLayout>

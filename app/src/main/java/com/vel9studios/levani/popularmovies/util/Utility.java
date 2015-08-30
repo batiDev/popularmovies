@@ -92,7 +92,7 @@ public class Utility {
         else if (favoriteFlag.equals(AppConstants.N_FLAG))
             favoriteMessage = movieTitle + " removed from favorites";
 
-        Toast appStart = Toast.makeText(context, favoriteMessage, Toast.LENGTH_LONG);
+        Toast appStart = Toast.makeText(context, favoriteMessage, Toast.LENGTH_SHORT);
         appStart.show();
     }
 

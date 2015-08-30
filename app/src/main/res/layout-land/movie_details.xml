@@ -5,6 +5,8 @@
     android:padding="@dimen/movie_details_padding_default"
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
+    android:background="@android:color/white"
+    android:elevation="@dimen/default_elevation"
     android:orientation="vertical">
 
     <LinearLayout
@@ -43,14 +45,58 @@
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:paddingLeft="@dimen/default_padding_extra"
+            android:background="#F5F5F5"
             android:orientation="vertical">
 
             <TextView
-                android:padding="@dimen/movie_details_padding_default"
+                android:paddingTop="@dimen/movie_details_padding_default"
+                android:paddingLeft="@dimen/movie_details_padding_default"
+                android:paddingRight="@dimen/movie_details_padding_default"
+                android:paddingBottom="@dimen/default_padding_extra"
                 android:id="@+id/detail_movie_release_date"
                 android:layout_width="wrap_content"
                 android:textSize="@dimen/release_date_text"
                 android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:paddingTop="@dimen/movie_details_padding_default"
+                android:paddingLeft="@dimen/movie_details_padding_default"
+                android:paddingRight="@dimen/movie_details_padding_default"
+                android:paddingBottom="@dimen/default_padding_extra"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:padding="@dimen/movie_details_padding_default"
+                    android:id="@+id/detail_movie_vote_average"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="italic|bold"
+                    android:textSize="@dimen/abc_text_size_display_1_material"
+                    android:textColor="@color/primary_color"/>
+
+                <TextView
+                    android:padding="@dimen/movie_details_padding_default"
+                    android:id="@+id/detail_movie_vote_average_label"
+                    android:text="@string/rating"
+                    android:textSize="@dimen/abc_text_size_small_material"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <ImageButton
+                android:paddingTop="@dimen/movie_details_padding_default"
+                android:paddingLeft="@dimen/movie_details_padding_default"
+                android:paddingRight="@dimen/movie_details_padding_default"
+                android:paddingBottom="@dimen/default_padding"
+                android:id="@+id/detail_favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="setFavorite"
+                android:background="#00ffffff" />
 
             <!-- reviews -->
             <Button
@@ -60,37 +106,6 @@
                 android:text="@string/reviews_button_text"
                 android:onClick="launchReviews"
                 android:layout_height="wrap_content"/>
-
-            <LinearLayout
-                android:padding="@dimen/movie_details_padding_default"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:padding="@dimen/movie_details_padding_default"
-                    android:id="@+id/detail_movie_vote_average_label"
-                    android:text="@string/rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:padding="@dimen/movie_details_padding_default"
-                    android:id="@+id/detail_movie_vote_average"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="italic|bold"
-                    android:textColor="@color/primary_color"/>
-
-            </LinearLayout>
-
-            <ImageButton
-                android:padding="@dimen/movie_details_padding_default"
-                android:id="@+id/detail_favorite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="setFavorite"
-                android:background="#00ffffff" />
 
         </LinearLayout>
 

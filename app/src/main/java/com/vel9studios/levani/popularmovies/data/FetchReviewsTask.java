@@ -61,8 +61,6 @@ public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
 
             JSONObject reviewObj = reviewsList.getJSONObject(i);
 
-            Log.d(LOG_TAG, reviewObj.toString());
-
             String reviewId = Utility.parseMovieContents(reviewObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID);
             String author = Utility.parseMovieContents(reviewObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_AUTHOR);
             String content = Utility.parseMovieContents(reviewObj, MoviesContract.ReviewsEntry.COLUMN_REVIEW_CONTENT);

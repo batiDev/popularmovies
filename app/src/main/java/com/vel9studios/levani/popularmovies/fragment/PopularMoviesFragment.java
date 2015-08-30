@@ -189,6 +189,10 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
             if (!isAvailable)
                 message = R.string.no_movies_network_unavailable;
 
+            // lack of data could be because user is viewing favorites but none have been set/saved to favorites
+            if (mShowFavorites)
+                message = R.string.no_movies_favorites_empty;
+
             tv.setText(message);
         }
     }

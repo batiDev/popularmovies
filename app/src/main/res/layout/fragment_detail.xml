@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:background="@color/primary_color"
+        android:elevation="@dimen/default_elevation"
         android:orientation="horizontal">
 
         <!-- title -->

@@ -13,4 +13,8 @@
     <color name="error_text">#616161</color>
     <color name="error_background">#FFB300</color>
 
+    <color name="reviews_button_background">#FBE9E7</color>
+    <color name="trailers_background">#ECEFF1</color>
+    <color name="overview_background">#FFFFFF</color>
+
 </resources>

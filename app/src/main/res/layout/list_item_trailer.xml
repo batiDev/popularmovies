@@ -7,6 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:descendantFocusability="blocksDescendants"
+    android:background="@color/trailers_background"
     android:layout_weight="1">
 
     <!-- blockDescendants applied to keep the list item clickable: http://stackoverflow.com/questions/16119643/android-listview-with-button-is-not-selectableclickable -->
