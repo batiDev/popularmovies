@@ -9,9 +9,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.vel9studios.levani.popularmovies.R;
+import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 import com.vel9studios.levani.popularmovies.fragment.DetailFragment;
-import com.vel9studios.levani.popularmovies.util.Utility;
+import com.vel9studios.levani.popularmovies.util.AppUtils;
 
 import java.util.ArrayList;
 
@@ -45,34 +46,39 @@ public class DetailActivity extends AppCompatActivity {
 
     public void setFavorite(View view)
     {
-        // retrieve values needed for setting favorites
+        //retrieve values needed for setting favorites
         ArrayList<String> favoriteValues = (ArrayList<String>) view.getTag();
-        String movieId = favoriteValues.get(0);
-        String favoriteInd = favoriteValues.get(1);
-        String movieTitle = favoriteValues.get(2);
+        String movieId = favoriteValues.get(AppConstants.FAVORITE_VALUES_MOVIE_ID_POSITION);
+        String favoriteInd = favoriteValues.get(AppConstants.FAVORITE_VALUES_FAVORITE_IND_POSITION);
+        String movieTitle = favoriteValues.get(AppConstants.FAVORITE_VALUES_MOVIE_TITLE_POSITION);
 
-        String favoriteFlag = Utility.getFavoriteFlag(favoriteInd);
+        String favoriteFlag = AppUtils.getFavoriteFlag(favoriteInd);
+
+        //get Uri for updating record with appropriate favorite flag
         Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(movieId, favoriteFlag);
+
+        // DB call should be minor enough where creating an Async task could be unncessary -- do some research
         int updated = this.getContentResolver().update(favoriteUri, null, null, null);
 
         // if record was successfully updated, show message
         if (updated == 1){
-            Utility.displayFavoritesMessage(favoriteFlag, movieTitle, this);
+            AppUtils.displayFavoritesMessage(favoriteFlag, movieTitle, this);
         }
 
         DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().findFragmentById(R.id.movie_detail_container);
         if (detailFragment != null) {
+            // notify detail fragment
             detailFragment.onFavoriteToggle();
         }
     }
 
     // launch review activity from Detail Activity
-    public void launchReviews(View view){
+    public void launchReviewsActivity(View view){
 
         String movieId = (String) view.getTag();
         // use movieId for fetching reviews
         Uri reviewsUri = MoviesContract.ReviewsEntry.buildReviewsUri(movieId);
-        Intent intent = new Intent(this, ReviewActivity.class).setData(reviewsUri);
+        Intent intent = new Intent(this, ReviewsActivity.class).setData(reviewsUri);
         startActivity(intent);
     }
 

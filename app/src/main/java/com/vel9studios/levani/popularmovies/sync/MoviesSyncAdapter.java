@@ -11,22 +11,20 @@ import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.IntDef;
 import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 import com.vel9studios.levani.popularmovies.data.MoviesDAO;
-import com.vel9studios.levani.popularmovies.util.Utility;
+import com.vel9studios.levani.popularmovies.util.AppUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     private final String LOG_TAG = MoviesSyncAdapter.class.getSimpleName();
@@ -43,11 +41,11 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
 
-        String sortType = Utility.getPreferredSortOrder(getContext());
+        String sortType = AppUtils.getPreferredSortOrder(getContext());
 
         try{
 
-            MoviesDAO moviesDAO = new MoviesDAO(getContext());
+            MoviesDAO moviesDAO = new MoviesDAO();
             //fetch data from server
             String movieListJsonStr = moviesDAO.getMovieData(sortType);
 
@@ -122,61 +120,58 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     private Void updateDatabaseWithMovies(String moviesJsonStr)
             throws JSONException {
 
-        if (moviesJsonStr == null){
+        // need to handle this
+        if (moviesJsonStr == null)
             return null;
-        }
 
-        JSONObject moviesJson = new JSONObject(moviesJsonStr);
-        JSONArray moviesList = moviesJson.getJSONArray(AppConstants.RESULTS);
+        JSONObject moviesJSON = new JSONObject(moviesJsonStr);
+        JSONArray moviesJSONArray = moviesJSON.getJSONArray(AppConstants.JSON_PARSE_RESULTS);
 
-        int moviesListLength = moviesList.length();
+        List<ContentValues> moviesContentValuesList = new ArrayList<>();
 
-        Vector<ContentValues> cVVector = new Vector<>(moviesListLength);
+        for(int i = 0; i < moviesJSONArray.length(); i++) {
 
-        for(int i = 0; i < moviesListLength; i++) {
+            JSONObject movieObj = moviesJSONArray.getJSONObject(i);
 
-            JSONObject movieObj = moviesList.getJSONObject(i);
+            String title = AppUtils.parseMovieContents(movieObj, AppConstants.JSON_PARSE_TITLE);
+            String partialPath = AppUtils.parseMovieContents(movieObj, AppConstants.JSON_PARSE_POSTER_PATH);
+            String overview = AppUtils.parseMovieContents(movieObj, AppConstants.JSON_PARSE_OVERVIEW);
 
-            String title = Utility.parseMovieContents(movieObj, AppConstants.TITLE);
-            String partialPath = Utility.parseMovieContents(movieObj, AppConstants.POSTER_PATH);
-            String overview = Utility.parseMovieContents(movieObj, AppConstants.OVERVIEW);
-
-            String releaseDate = Utility.parseMovieContents(movieObj, AppConstants.RELEASE_DATE);
+            String releaseDate = AppUtils.parseMovieContents(movieObj, AppConstants.JSON_RELEASE_DATE);
 
             //Date string is (usually) in "YYYY-MM-DD" format, get just the year
-            if (!releaseDate.equals(AppConstants.STRING_NO_DATA) && releaseDate.length() > 4){
+            if (!releaseDate.equals(AppConstants.JSON_PARSE_STRING_NO_DATA) && releaseDate.length() > 4){
                 releaseDate = releaseDate.substring(0,4);
                 //year data may also just be "empty" check for it here
             } else if (releaseDate.length() == 0) {
-                releaseDate = AppConstants.STRING_NO_DATA;
+                releaseDate = AppConstants.JSON_PARSE_STRING_NO_DATA;
             }
 
-            Integer movieId = movieObj.getInt(AppConstants.MOVIE_ID);
-            Double voteAverage = movieObj.getDouble(AppConstants.VOTE_AVERAGE);
-            Double popularity = movieObj.getDouble(AppConstants.POPULARITY);
+            Integer movieId = movieObj.getInt(AppConstants.JSON_PARSE_MOVIE_ID);
+            Double voteAverage = movieObj.getDouble(AppConstants.JSON_VOTE_AVERAGE);
+            Double popularity = movieObj.getDouble(AppConstants.JSON_PARSE_POPULARITY);
 
-            ContentValues moviesValues = new ContentValues();
+            ContentValues movieValues = new ContentValues();
 
-            moviesValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, movieId);
-            moviesValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE, title);
-            moviesValues.put(MoviesContract.MoviesEntry.COLUMN_IMAGE_PATH, partialPath);
-            moviesValues.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, overview);
-            moviesValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, releaseDate);
-            moviesValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE, voteAverage);
-            moviesValues.put(MoviesContract.MoviesEntry.COLUMN_POPULARITY, popularity);
+            movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, movieId);
+            movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE, title);
+            movieValues.put(MoviesContract.MoviesEntry.COLUMN_IMAGE_PATH, partialPath);
+            movieValues.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, overview);
+            movieValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, releaseDate);
+            movieValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE, voteAverage);
+            movieValues.put(MoviesContract.MoviesEntry.COLUMN_POPULARITY, popularity);
 
-            cVVector.add(moviesValues);
+            moviesContentValuesList.add(movieValues);
         }
 
         int inserted = 0;
         // add to database
-        if ( cVVector.size() > 0 ) {
-            ContentValues[] cvArray = new ContentValues[cVVector.size()];
-            cVVector.toArray(cvArray);
-            inserted = getContext().getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, cvArray);
+        Integer moviesContentValuesListSize = moviesContentValuesList.size();
+        if (moviesContentValuesListSize > 0) {
+            ContentValues[] cvArray = new ContentValues[moviesContentValuesListSize];
+            moviesContentValuesList.toArray(cvArray);
+            getContext().getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, cvArray);
         }
-
-        Log.d(LOG_TAG, "FetchMovieTask Complete. " + inserted + " Inserted/Updated");
 
         return null;
     }

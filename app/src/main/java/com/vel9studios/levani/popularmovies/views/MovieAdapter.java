@@ -30,19 +30,18 @@ public class MovieAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
 
         View view = LayoutInflater.from(context).inflate(R.layout.grid_item_movie, parent, false);
-
         return view;
     }
 
     private void loadImage(ImageView imageView, String posterPath){
 
-        //retrieve desired image dimension constants
+        // retrieve desired image dimension constants
         Resources resources = mContext.getResources();
         int height = resources.getInteger(R.integer.grid_image_height);
         int width = resources.getInteger(R.integer.grid_image_width);
 
-        //basic error-handling, if there's no poster data, load generic image
-        String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.GRID_IMAGE_QUERY_WIDTH + posterPath;
+        // some rror-handling, if there's no poster data, load generic image
+        String fullPosterPath = AppConstants.QUERY_IMAGE_BASE_URL + AppConstants.QUERY_GRID_IMAGE_QUERY_WIDTH + posterPath;
 
         Picasso.with(mContext)
                 .load(fullPosterPath)
@@ -54,7 +53,7 @@ public class MovieAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        // Read date from cursor
+        // Read data from cursor
         String posterPath = cursor.getString(PopularMoviesFragment.COLUMN_IMAGE_PATH_ID);
         ImageView imageView = (ImageView) view.findViewById(R.id.grid_item_movie_image);
         loadImage(imageView, posterPath);

@@ -8,13 +8,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.vel9studios.levani.popularmovies.R;
+import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.fragment.ReviewsFragment;
 
 
 //Code from "Developing Android Apps: Fundamentals"/default code
-public class ReviewActivity extends AppCompatActivity {
+public class ReviewsActivity extends AppCompatActivity {
 
-    private final String LOG_TAG = ReviewActivity.class.getSimpleName();
+    private final String LOG_TAG = ReviewsActivity.class.getSimpleName();
     private Uri mUri = null;
 
     @Override
@@ -25,7 +26,7 @@ public class ReviewActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             Bundle arguments = new Bundle();
             mUri = getIntent().getData();
-            arguments.putParcelable(ReviewsFragment.REVIEWS_URI, mUri);
+            arguments.putParcelable(AppConstants.REVIEWS_URI_KEY, mUri);
 
             ReviewsFragment fragment = new ReviewsFragment();
             fragment.setArguments(arguments);

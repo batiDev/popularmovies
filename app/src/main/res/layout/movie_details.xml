@@ -2,9 +2,9 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="2dp"
+    android:padding="@dimen/padding_small"
     android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:orientation="vertical">
 
     <!-- Detail Layout for Grid -->
@@ -25,12 +25,12 @@
             app:layout_columnWeight="1"
             android:layout_width="@dimen/detail_image_width"
             android:layout_height="@dimen/detail_image_height"
-            android:padding="@dimen/detail_image_padding_default"
+            android:padding="@dimen/padding_medium_small"
             app:layout_gravity="center" />
 
         <!-- release date -->
         <TextView
-            android:padding="@dimen/movie_details_padding_default"
+            android:padding="@dimen/padding_small"
             android:id="@+id/detail_movie_release_date"
             android:textSize="@dimen/abc_text_size_display_1_material"
             android:gravity="center_vertical"
@@ -41,7 +41,7 @@
 
         <!-- rating -->
         <LinearLayout
-            android:padding="@dimen/movie_details_padding_default"
+            android:padding="@dimen/padding_small"
             android:gravity="center_vertical"
             app:layout_columnSpan="1"
             app:layout_rowWeight="1"
@@ -49,7 +49,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:padding="@dimen/movie_details_padding_default"
+                android:padding="@dimen/padding_small"
                 android:id="@+id/detail_movie_vote_average"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,9 +58,9 @@
                 android:textColor="@color/primary_color"/>
 
             <TextView
-                android:padding="@dimen/movie_details_padding_default"
+                android:padding="@dimen/padding_small"
                 android:id="@+id/detail_movie_vote_average_label"
-                android:text="@string/rating"
+                android:text="@string/label_rating"
                 android:textSize="@dimen/abc_text_size_small_material"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -84,20 +84,18 @@
             android:layout_height="wrap_content"
             app:layout_columnSpan="2"
             android:textColor="@color/primary_color"
-            android:text="@string/reviews_button_text"
-            android:onClick="launchReviews"
+            android:text="@string/label_reviews_button"
+            android:onClick="launchReviewsActivity"
             />
 
     </android.support.v7.widget.GridLayout>
-
-
 
     <!-- overview text content -->
     <TextView
         android:padding="@dimen/default_padding"
         android:id="@+id/detail_movie_overview"
         android:background="@color/overview_background"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
 

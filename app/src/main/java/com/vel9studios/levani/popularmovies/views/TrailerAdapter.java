@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
+import com.vel9studios.levani.popularmovies.constants.ProjectionConstants;
 
 /**
  * {@link TrailerAdapter} exposes a list of trailers
@@ -35,7 +35,7 @@ public class TrailerAdapter extends CursorAdapter {
 
         // Read trailer from cursor
         TextView trailerName = (TextView) view.findViewById(R.id.list_item_trailer_name);
-        trailerName.setText(cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_NAME));
+        trailerName.setText(cursor.getString(ProjectionConstants.COLUMN_VIDEO_NAME));
     }
 
 }

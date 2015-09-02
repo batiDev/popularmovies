@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
+import com.vel9studios.levani.popularmovies.constants.ProjectionConstants;
 
 /**
  * {@link ReviewsAdapter} exposes a list of reviews
@@ -27,7 +27,6 @@ public class ReviewsAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
 
         View view = LayoutInflater.from(context).inflate(R.layout.list_item_review, parent, false);
-
         return view;
     }
 
@@ -36,10 +35,10 @@ public class ReviewsAdapter extends CursorAdapter {
 
         // Read data from cursor
         TextView reviewContent = (TextView) view.findViewById(R.id.list_item_review_content);
-        reviewContent.setText(cursor.getString(DetailFragmentConstants.COLUMN_REVIEW_CONTENT_ID));
+        reviewContent.setText(cursor.getString(ProjectionConstants.COLUMN_REVIEW_CONTENT_ID));
 
         TextView author = (TextView) view.findViewById(R.id.list_item_review_author);
-        author.setText(cursor.getString(DetailFragmentConstants.COLUMN_REVIEWS_AUTHOR_ID));
+        author.setText(cursor.getString(ProjectionConstants.COLUMN_REVIEWS_AUTHOR_ID));
     }
 
 }

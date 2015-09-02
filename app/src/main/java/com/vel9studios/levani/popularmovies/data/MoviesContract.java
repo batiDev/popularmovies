@@ -40,7 +40,7 @@ public class MoviesContract {
     // used in combination with movies to get id for "first" movie
     public static final String PATH_FIRST = "first";
 
-    // next three inner classes define our three main tables, movies, videos and trailers
+    // next three inner classes define our three main tables: movies, videos and trailers
     public static final class MoviesEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =

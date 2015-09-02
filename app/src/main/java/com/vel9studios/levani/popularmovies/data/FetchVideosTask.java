@@ -6,13 +6,14 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
-import com.vel9studios.levani.popularmovies.util.Utility;
+import com.vel9studios.levani.popularmovies.util.AppUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FetchVideosTask extends AsyncTask<String, Void, Void> {
 
@@ -29,7 +30,7 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
         try{
 
             mMovieId = params[0];
-            MoviesDAO moviesDAO = new MoviesDAO(mContext);
+            MoviesDAO moviesDAO = new MoviesDAO();
             //fetch data from server
             String videosJSONStr = moviesDAO.getVideos(mMovieId);
 
@@ -42,30 +43,28 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    private Void getVideosDataFromJson(String videosJsonStr)
+    private Void getVideosDataFromJson(String videosResponseStr)
             throws JSONException {
 
-        if (videosJsonStr== null){
+        // need to handle this
+        if (videosResponseStr == null)
             return null;
-        }
 
-        JSONObject moviesJson = new JSONObject(videosJsonStr);
-        JSONArray videoList = moviesJson.getJSONArray(AppConstants.RESULTS);
+        JSONObject videosJSON = new JSONObject(videosResponseStr);
+        JSONArray videoJSONArray = videosJSON.getJSONArray(AppConstants.JSON_PARSE_RESULTS);
 
-        int videoListLength = videoList.length();
+        List<ContentValues> videoContentValuesList = new ArrayList<>();
 
-        Vector<ContentValues> cVVector = new Vector<>(videoListLength);
+        for(int i = 0; i < videoJSONArray.length(); i++) {
 
-        for(int i = 0; i < videoListLength; i++) {
+            JSONObject movieObj = videoJSONArray.getJSONObject(i);
 
-            JSONObject movieObj = videoList.getJSONObject(i);
-
-            String videoId = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_ID);
-            String videoKey = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_KEY);
-            String name = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_NAME);
-            String site = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_SITE);
+            String videoId = AppUtils.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_ID);
+            String videoKey = AppUtils.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_KEY);
+            String name = AppUtils.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_NAME);
+            String site = AppUtils.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_VIDEO_SITE);
             Integer size = movieObj.getInt(MoviesContract.VideosEntry.COLUMN_VIDEO_SIZE);
-            String type = Utility.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_TYPE);
+            String type = AppUtils.parseMovieContents(movieObj, MoviesContract.VideosEntry.COLUMN_TYPE);
 
             ContentValues videoValues = new ContentValues();
 
@@ -77,13 +76,14 @@ public class FetchVideosTask extends AsyncTask<String, Void, Void> {
             videoValues.put(MoviesContract.VideosEntry.COLUMN_TYPE, type);
             videoValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, mMovieId);
 
-            cVVector.add(videoValues);
+            videoContentValuesList.add(videoValues);
         }
 
         //Insert content values code from "Developing Android Apps: Fundamentals"
-        if ( cVVector.size() > 0 ) {
-            ContentValues[] cvArray = new ContentValues[cVVector.size()];
-            cVVector.toArray(cvArray);
+        Integer videoContentValuesListSize = videoContentValuesList.size();
+        if (videoContentValuesListSize > 0) {
+            ContentValues[] cvArray = new ContentValues[videoContentValuesListSize];
+            videoContentValuesList.toArray(cvArray);
             mContext.getContentResolver().bulkInsert(MoviesContract.VideosEntry.CONTENT_URI, cvArray);
         }
 

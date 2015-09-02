@@ -36,7 +36,7 @@ public class MoviesProvider extends ContentProvider {
 
     private final String LOG_TAG = MoviesProvider.class.getSimpleName();
 
-    // see URI matcher method for matching details
+    // see URI matcher method for additional context
     private static final int MOVIES = 100;
     private static final int MOVIE_ITEM_DETAILS = 101;
     private static final int VIDEOS = 102;
@@ -46,7 +46,7 @@ public class MoviesProvider extends ContentProvider {
     private static final int REVIEWS = 106;
     private static final int MOVIE_ITEM_REVIEWS = 107;
 
-    private static final int FIRST_MOVIE = 108;
+    private static final int TOP_MOVIE_ITEM_DETAILS = 108;
 
     // WHERE clauses
     private static final String sMovieIdSelection =
@@ -86,14 +86,14 @@ public class MoviesProvider extends ContentProvider {
         // movies
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIES);
 
-        //
+        // movie item
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_ITEM_DETAILS);
 
         // videos
         matcher.addURI(authority, MoviesContract.PATH_VIDEOS, VIDEOS);
         matcher.addURI(authority, MoviesContract.PATH_VIDEOS + "/#", MOVIE_ITEM_VIDEOS);
 
-        // view favorites
+        // favorites
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FAVORITE, FAVORITES);
 
         // set movie as favorite or remove movie from favorites
@@ -105,8 +105,8 @@ public class MoviesProvider extends ContentProvider {
         // view reviews for movie
         matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", MOVIE_ITEM_REVIEWS);
 
-        // first movie
-        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FIRST, FIRST_MOVIE);
+        // in two-pane mode, display the "top"/"first" movie in db for given sort criteria
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_FIRST, TOP_MOVIE_ITEM_DETAILS);
 
         return matcher;
     }
@@ -151,7 +151,7 @@ public class MoviesProvider extends ContentProvider {
                 return MoviesContract.ReviewsEntry.CONTENT_TYPE;
             case MOVIE_ITEM_REVIEWS:
                 return MoviesContract.ReviewsEntry.CONTENT_TYPE;
-            case FIRST_MOVIE:
+            case TOP_MOVIE_ITEM_DETAILS:
                 return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
 
             default:
@@ -177,7 +177,7 @@ public class MoviesProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder,
-                        // set limit of results
+                        // set results limit
                         AppConstants.GRID_VIEW_ITEM_LIMIT
                 );
                 break;
@@ -200,7 +200,7 @@ public class MoviesProvider extends ContentProvider {
                 );
                 break;
             }
-            // get videos for given movie by using its movie ID to selected videos from the videos table
+            // get videos for given movie, use movie id to selected associated videos from videos table.
             case MOVIE_ITEM_VIDEOS:
             {
                 String movieId = uri.getLastPathSegment();
@@ -218,7 +218,7 @@ public class MoviesProvider extends ContentProvider {
 
                 break;
             }
-            //returns all movies marked as favorite
+            //return all movies marked as favorite
             case FAVORITES:
             {
                 selectionArgs = new String[]{AppConstants.Y_FLAG};
@@ -235,7 +235,7 @@ public class MoviesProvider extends ContentProvider {
 
                 break;
             }
-            // returns reviews for given movie Id
+            // return reviews for given movie, using movieId
             case MOVIE_ITEM_REVIEWS:
             {
                 String movieId = uri.getLastPathSegment();
@@ -253,8 +253,8 @@ public class MoviesProvider extends ContentProvider {
 
                 break;
             }
-            // get the first movie in db for given sort order
-            case FIRST_MOVIE:
+            // return the first/top movie in db for given sort order
+            case TOP_MOVIE_ITEM_DETAILS:
             {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MoviesContract.MoviesEntry.TABLE_NAME,
@@ -376,7 +376,7 @@ public class MoviesProvider extends ContentProvider {
 
                     // clear out any movies that have not been favorited.
                     // When sorting by rating there's a bunch of 'bad' data movies with 10.0 ratings
-                    // if those don't get cleared out, after a while we end with 20 movies all with 10.0 ratings that end up keeping that unrealstic rating and staying on top of the list.
+                    // if those don't get cleared out, after a while we end with 20 movies all with 10.0 ratings.
                     // Since the 'sort by rating' list is much more in flux than the popularity sorted movies, we also end up with a ton of data in the db we don't need.
                     // need to keep thinking about this one.
                     db.delete(MoviesEntry.TABLE_NAME, sFavoritesNotSelection, new String[]{AppConstants.Y_FLAG});

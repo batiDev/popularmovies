@@ -6,7 +6,7 @@ import android.widget.Toast;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
 import com.vel9studios.levani.popularmovies.constants.AppConstantsPrivate;
 
-public class Validation {
+public class AppValidator {
 
     /**
      * Set up method for checking for things which are absolutely needed for app to work.
@@ -16,13 +16,14 @@ public class Validation {
 
         Boolean containsNeededElements = false;
 
-        //check for API key
+        // check for API key
+        // ideally we use StringUtils.isBlank(AppConstantsPrivate.API_KEY) here
         if (AppConstantsPrivate.API_KEY.length() == 0){
 
-            Toast apiWarning = Toast.makeText(context, AppConstants.API_KEY_WARNING, Toast.LENGTH_LONG);
+            Toast apiWarning = Toast.makeText(context, AppConstants.MESSAGE_API_KEY_WARNING, Toast.LENGTH_LONG);
             apiWarning.show();
 
-            Toast appStart = Toast.makeText(context, AppConstants.APP_START_ERROR, Toast.LENGTH_LONG);
+            Toast appStart = Toast.makeText(context, AppConstants.MESSAGE_APP_START_ERROR, Toast.LENGTH_LONG);
             appStart.show();
         } else {
             containsNeededElements = true;

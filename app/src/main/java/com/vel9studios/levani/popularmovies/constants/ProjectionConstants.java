@@ -2,15 +2,10 @@ package com.vel9studios.levani.popularmovies.constants;
 
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
 
-public class DetailFragmentConstants {
+public class ProjectionConstants {
 
     public static final String[] MOVIE_DETAIL_COLUMNS = {
-            // In this case the id needs to be fully qualified with a table name, since
-            // the content provider joins the location & weather tables in the background
-            // (both have an _id column)
-            // On the one hand, that's annoying.  On the other, you can search the weather table
-            // using the location set by the user, which is only in the Location table.
-            // So the convenience is worth it.
+
             MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID,
             MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
             MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE,
@@ -22,12 +17,7 @@ public class DetailFragmentConstants {
     };
 
     public static final String[] VIDEO_DETAIL_COLUMNS = {
-            // In this case the id needs to be fully qualified with a table name, since
-            // the content provider joins the location & weather tables in the background
-            // (both have an _id column)
-            // On the one hand, that's annoying.  On the other, you can search the weather table
-            // using the location set by the user, which is only in the Location table.
-            // So the convenience is worth it.
+
             MoviesContract.VideosEntry.TABLE_NAME + "." + MoviesContract.VideosEntry._ID,
             MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
             MoviesContract.VideosEntry.COLUMN_VIDEO_ID,
@@ -39,12 +29,7 @@ public class DetailFragmentConstants {
     };
 
     public static final String[] REVIEWS_DETAIL_COLUMNS = {
-            // In this case the id needs to be fully qualified with a table name, since
-            // the content provider joins the location & weather tables in the background
-            // (both have an _id column)
-            // On the one hand, that's annoying.  On the other, you can search the weather table
-            // using the location set by the user, which is only in the Location table.
-            // So the convenience is worth it.
+
             MoviesContract.ReviewsEntry.TABLE_NAME + "." + MoviesContract.VideosEntry._ID,
             MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
             MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID,

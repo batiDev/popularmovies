@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/default_padding"
-        android:text="@string/no_trailers"
+        android:text="@string/message_empty_trailers"
         android:visibility="gone"/>
 
 </LinearLayout>

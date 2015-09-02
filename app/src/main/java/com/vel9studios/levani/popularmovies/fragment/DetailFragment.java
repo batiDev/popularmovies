@@ -26,10 +26,10 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.vel9studios.levani.popularmovies.R;
 import com.vel9studios.levani.popularmovies.constants.AppConstants;
-import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
+import com.vel9studios.levani.popularmovies.constants.ProjectionConstants;
 import com.vel9studios.levani.popularmovies.data.FetchVideosTask;
 import com.vel9studios.levani.popularmovies.data.MoviesContract;
-import com.vel9studios.levani.popularmovies.util.Utility;
+import com.vel9studios.levani.popularmovies.util.AppUtils;
 import com.vel9studios.levani.popularmovies.views.TrailerAdapter;
 
 import java.util.ArrayList;
@@ -108,7 +108,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mUri = arguments.getParcelable(DETAIL_URI);
 
         if (savedInstanceState != null)
-            mMovieId = savedInstanceState.getString(AppConstants.MOVIE_ID_TAG);
+            mMovieId = savedInstanceState.getString(AppConstants.MOVIE_ID_KEY);
 
         //set text elements
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
@@ -119,7 +119,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
          * Avoids the "ListView in ScrollView" problem
          * http://stackoverflow.com/questions/7978359/using-listview-how-to-add-a-header-view
          *
-         * Note: I feel like there should be a better way of doing this. When implementing
+         * Note: Should there be a better way of doing this. When implementing
          * RecyclerView into future projects, look into this type of scrolling handling.
          */
         mTrailerListView = (ListView) rootView.findViewById(R.id.listview_trailers);
@@ -127,7 +127,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         ViewGroup header = (ViewGroup)inflater.inflate(R.layout.movie_details, mTrailerListView, false);
         mTrailerListView.addHeaderView(header, null, false);
 
-        // get the trailer adapter going
         mTrailerListView.setAdapter(mTrailerAdapter);
 
         mTrailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -136,16 +135,23 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null) {
-
                     //http://stackoverflow.com/questions/574195/android-youtube-app-play-video-intent
-                    String youtubeKey = cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_KEY);
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(AppConstants.YOUTUBE_URI + youtubeKey));
-                    intent.putExtra(AppConstants.YOUTUBE_VIDEO_ID, youtubeKey);
+                    String youTubeKey = cursor.getString(ProjectionConstants.COLUMN_VIDEO_KEY);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(AppConstants.YOUTUBE_URI + youTubeKey));
+                    intent.putExtra(AppConstants.YOUTUBE_VIDEO_ID, youTubeKey);
                     startActivity(intent);
                 }
             }
         });
 
+        setViews(rootView);
+
+        return rootView;
+    }
+
+    private void setViews(View rootView)
+    {
+        // find views
         mTitle = (TextView) rootView.findViewById(R.id.detail_movie_title);
         mReleaseDate = (TextView) rootView.findViewById(R.id.detail_movie_release_date);
         mVoteAverage = (TextView) rootView.findViewById(R.id.detail_movie_vote_average);
@@ -154,15 +160,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mFavorite = (ImageButton) rootView.findViewById(R.id.detail_favorite);
         mReviews = (TextView) rootView.findViewById(R.id.detail_reviews);
         mNoTrailersView = (TextView) rootView.findViewById(R.id.listview_trailers_empty);
-
-        return rootView;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
 
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-        //start the loader when activity is recreated even if movieId is already present
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -170,14 +173,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         mUri = null;
         mVideosUri = null;
-        // restart the loader to reflect the updated sortorder change state
+        // restart the loader to reflect the updated sort order change
         getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
     }
 
     public void onFavoriteToggle() {
-
         getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
-
     }
 
     @Override
@@ -186,20 +187,23 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (id == DETAIL_LOADER){
 
             Uri moveDetailUri;
-
-            // if mUri is available, use it, else display details for first movie in db for given sort criteria
+            /*
+                if mUri is available, use it, else display details for first movie in db
+                a. if mUri is available, user has explicitly selected a movie
+                b. mUri will be unavalable if fragment is started in two pane mode and no movie has been explicitly selected.
+             */
             String sortOrder = null;
             if (mUri != null)
                 moveDetailUri =  mUri;
             else {
-                sortOrder = Utility.getSortOrderQuery(getActivity());
+                sortOrder = AppUtils.getSortOrderQuery(getActivity());
                 moveDetailUri = MoviesContract.MoviesEntry.buildFirstMovieUri();
             }
 
             return new CursorLoader(
                     getActivity(),
                     moveDetailUri,
-                    DetailFragmentConstants.MOVIE_DETAIL_COLUMNS,
+                    ProjectionConstants.MOVIE_DETAIL_COLUMNS,
                     null,
                     null,
                     sortOrder
@@ -211,7 +215,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             return new CursorLoader(
                     getActivity(),
                     mVideosUri,
-                    DetailFragmentConstants.VIDEO_DETAIL_COLUMNS,
+                    ProjectionConstants.VIDEO_DETAIL_COLUMNS,
                     null,
                     null,
                     null
@@ -226,43 +230,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         int currentLoader = loader.getId();
         if (currentLoader == DETAIL_LOADER && cursor.moveToFirst()){
-            // update details view
-            String movieTitle = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_TITLE_ID);
-            mTitle.setText(movieTitle);
-            mReleaseDate.setText(cursor.getString(DetailFragmentConstants.COLUMN_RELEASE_DATE_ID));
-            mVoteAverage.setText(String.valueOf(cursor.getDouble(DetailFragmentConstants.COLUMN_VOTE_AVERAGE_ID)));
-            mMovieOverview.setText(cursor.getString(DetailFragmentConstants.COLUMN_OVERVIEW_ID));
-
-            String currentMovieId = cursor.getString(DetailFragmentConstants.COLUMN_MOVIE_ID);
-            getVideos(currentMovieId);
-            mMovieId = currentMovieId;
-
-            //http://stackoverflow.com/questions/21114025/how-to-change-only-the-image-inside-an-imagebutton-and-not-the-whole-imagebutton
-            String favoriteInd = cursor.getString(DetailFragmentConstants.COLUMN_FAVORITE_IND_ID);
-            setFavoriteState(favoriteInd);
-
-            // load image
-            String posterPath = cursor.getString(DetailFragmentConstants.COLUMN_IMAGE_PATH_ID);
-            String fullPosterPath = AppConstants.IMAGE_BASE_URL + AppConstants.DETAIL_IMAGE_QUERY_WIDTH + posterPath;
-            loadImage(fullPosterPath);
-
-            // gather values for saving movie to favorites
-            ArrayList<String> favoriteValues = new ArrayList<>();
-            favoriteValues.add(mMovieId);
-            favoriteValues.add(favoriteInd);
-            favoriteValues.add(movieTitle);
-            mFavorite.setTag(favoriteValues);
-
-            // set value for launching ReviewsActivity
-            mReviews.setTag(mMovieId);
-
+            updateDetailsView(cursor);
         } else if (currentLoader == VIDEO_LOADER) {
 
             if (cursor.moveToFirst()){
-
-
                 // get youtube video key for first trailer and create share video intent
-                mFirstVideoYouTubeKey = cursor.getString(DetailFragmentConstants.COLUMN_VIDEO_KEY);
+                mFirstVideoYouTubeKey = cursor.getString(ProjectionConstants.COLUMN_VIDEO_KEY);
                 if (mShareActionProvider != null)
                     mShareActionProvider.setShareIntent(createShareVideoIntent(mFirstVideoYouTubeKey));
 
@@ -271,14 +244,51 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 // overwriting the movie details layout. Revisit.
                 mNoTrailersView.setVisibility(View.GONE);
             } else {
-
                 mNoTrailersView.setVisibility(View.VISIBLE);
             }
-
 
             mTrailerAdapter.swapCursor(cursor);
         }
 
+    }
+
+    /**
+     * Cursor will contain all of the data needed for controlling, painting the detail view, as well
+     * as getting the values needed for retrieving trailers, and launching the reviews fragment
+     *
+     * @param cursor
+     */
+    private void updateDetailsView(Cursor cursor)
+    {
+        // update details view
+        String movieTitle = cursor.getString(ProjectionConstants.COLUMN_MOVIE_TITLE_ID);
+        mTitle.setText(movieTitle);
+        mReleaseDate.setText(cursor.getString(ProjectionConstants.COLUMN_RELEASE_DATE_ID));
+        mVoteAverage.setText(String.valueOf(cursor.getDouble(ProjectionConstants.COLUMN_VOTE_AVERAGE_ID)));
+        mMovieOverview.setText(cursor.getString(ProjectionConstants.COLUMN_OVERVIEW_ID));
+
+        String currentMovieId = cursor.getString(ProjectionConstants.COLUMN_MOVIE_ID);
+        getVideos(currentMovieId);
+        mMovieId = currentMovieId;
+
+        //http://stackoverflow.com/questions/21114025/how-to-change-only-the-image-inside-an-imagebutton-and-not-the-whole-imagebutton
+        String favoriteInd = cursor.getString(ProjectionConstants.COLUMN_FAVORITE_IND_ID);
+        setFavoriteState(favoriteInd);
+
+        // load image
+        String posterPath = cursor.getString(ProjectionConstants.COLUMN_IMAGE_PATH_ID);
+        String fullPosterPath = AppConstants.QUERY_IMAGE_BASE_URL + AppConstants.QUERY_DETAIL_IMAGE_QUERY_WIDTH + posterPath;
+        loadImage(fullPosterPath);
+
+        // gather values for saving movie to favorites
+        ArrayList<String> favoriteValues = new ArrayList<>();
+        favoriteValues.add(mMovieId);
+        favoriteValues.add(favoriteInd);
+        favoriteValues.add(movieTitle);
+        mFavorite.setTag(favoriteValues);
+
+        // set movieId value for launching ReviewsActivity
+        mReviews.setTag(mMovieId);
     }
 
     private void setFavoriteState(String favoriteInd){
@@ -305,7 +315,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private void getVideos(String currentMovieId) {
 
         LoaderManager loaderManager = getLoaderManager();
-        // if displaying details for a new movie, fetch videos
+        /*
+            if displaying details for a NEW movie, fetch videos.
+            This method will be called on screen rotate as the fragment is recreated,
+            In such a case, the movieId will be the same as it was before screen rotate -- no need to get videos again.
+        */
         if (mMovieId == null || !mMovieId.equals(currentMovieId) ){
 
             mVideosUri = MoviesContract.VideosEntry.buildVideosUri(currentMovieId);
@@ -318,12 +332,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             }
 
         }
+
         loaderManager.initLoader(VIDEO_LOADER, null, this);
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString(AppConstants.MOVIE_ID_TAG, mMovieId);
+        savedInstanceState.putString(AppConstants.MOVIE_ID_KEY, mMovieId);
         super.onSaveInstanceState(savedInstanceState);
     }
 

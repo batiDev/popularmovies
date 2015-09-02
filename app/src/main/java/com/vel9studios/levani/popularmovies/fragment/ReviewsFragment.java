@@ -11,10 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.vel9studios.levani.popularmovies.R;
-import com.vel9studios.levani.popularmovies.constants.DetailFragmentConstants;
+import com.vel9studios.levani.popularmovies.constants.AppConstants;
+import com.vel9studios.levani.popularmovies.constants.ProjectionConstants;
 import com.vel9studios.levani.popularmovies.data.FetchReviewsTask;
 import com.vel9studios.levani.popularmovies.views.ReviewsAdapter;
 
@@ -22,14 +22,10 @@ import com.vel9studios.levani.popularmovies.views.ReviewsAdapter;
 public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = ReviewsFragment.class.getSimpleName();
-    public static final String REVIEWS_URI = "URI";
-
-    private TextView mNoReviews;
     private ReviewsAdapter mReviewsAdapter;
 
     //Uris
     private Uri mReviewsUri;
-
     private static final int REVIEWS_LOADER = 1;
 
     public ReviewsFragment() {
@@ -43,7 +39,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         Bundle arguments = getArguments();
         if (arguments != null) {
 
-            mReviewsUri = arguments.getParcelable(REVIEWS_URI);
+            mReviewsUri = arguments.getParcelable(AppConstants.REVIEWS_URI_KEY);
             if (mReviewsUri != null){
                 // get movieId we want to view reviews for
                 String movieId = mReviewsUri.getLastPathSegment();
@@ -59,6 +55,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         //set text elements
         View rootView = inflater.inflate(R.layout.fragment_reviews, container, false);
 
+        // set up reviews list view + adapter
         ListView reviewsListView = (ListView) rootView.findViewById(R.id.listview_reviews);
         mReviewsAdapter = new ReviewsAdapter(getActivity(), null, 0);
         reviewsListView.setAdapter(mReviewsAdapter);
@@ -81,7 +78,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
             return new CursorLoader(
                     getActivity(),
                     mReviewsUri,
-                    DetailFragmentConstants.REVIEWS_DETAIL_COLUMNS,
+                    ProjectionConstants.REVIEWS_DETAIL_COLUMNS,
                     null,
                     null,
                     null
@@ -94,9 +91,8 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
-        if (cursor != null && cursor.moveToFirst()) {
-
-            if (loader.getId() == REVIEWS_LOADER){
+        if (loader.getId() == REVIEWS_LOADER){
+            if (cursor != null && cursor.moveToFirst()) {
                 mReviewsAdapter.swapCursor(cursor);
             }
         }

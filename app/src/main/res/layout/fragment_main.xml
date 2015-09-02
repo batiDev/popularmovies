@@ -26,7 +26,7 @@
         android:padding="@dimen/default_padding"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/no_movies_general"
+        android:text="@string/message_empty_movies"
         android:visibility="gone" />
 
 </FrameLayout>

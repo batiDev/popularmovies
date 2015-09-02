@@ -11,18 +11,17 @@
     <dimen name="detail_image_height">224dp</dimen>
 
     <!-- detail movie details -->
-    <dimen name="release_date_text">32sp</dimen>
+    <dimen name="release_date_text_size">32sp</dimen>
 
-    <!-- default padding -->
-    <dimen name="default_padding">16dp</dimen>
-
-    <dimen name="default_padding_extra">8dp</dimen>
     <dimen name="default_elevation">4dp</dimen>
 
     <dimen name="grid_view_column_width">130dp</dimen>
     <dimen name="grid_view_padding">1dp</dimen>
 
-    <dimen name="movie_details_padding_default">2dp</dimen>
-    <dimen name="detail_image_padding_default">4dp</dimen>
+    <!-- default padding -->
+    <dimen name="default_padding">16dp</dimen>
+    <dimen name="padding_small">2dp</dimen>
+    <dimen name="padding_medium_small">4dp</dimen>
+    <dimen name="padding_medium">8dp</dimen>
 
 </resources>

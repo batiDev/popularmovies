@@ -4,6 +4,7 @@
     <string name="action_share">Share</string>
     <string name="action_favorites_show">Show Favorites</string>
     <string name="action_favorites_hide">Hide Favorites</string>
+
     <string name="title_activity_detail">Movie Detail</string>
     <string name="title_reviews_detail">Reviews</string>
 
@@ -14,19 +15,21 @@
     <string name="pref_sort_default">popularity.desc</string>
 
     <!-- detail view -->
-    <string name="rating">Rating</string>
+    <string name="label_rating">Rating</string>
+
+    <!--reviews-->
+    <string name="label_reviews_button">Read Reviews</string>
+
+    <!-- messages -->
+    <string name="message_empty_reviews">No reviews available.</string>
+    <string name="message_empty_trailers">No trailers available.</string>
+    <string name="message_empty_movies">An error occured while retrieving movies, please try again.</string>
+    <string name="message_empty_movies_network_unavailable">No available network connection, please try again.</string>
+    <string name="message_empty_favorites">No favorites to display.</string>
 
     <!-- SyncAdapter related -->
     <string name="sync_account_type">levani.vel9studios.com</string>
     <string name="content_authority">com.vel9studios.levani.popularmovies</string>
 
-    <!--reviews-->
-    <string name="no_reviews">No reviews available.</string>
-    <string name="no_trailers">No trailers available.</string>
-    <string name="no_movies_general">An error occured while retrieving movies, please try again.</string>
-    <string name="no_movies_network_unavailable">No available network connection, please try again.</string>
-    <string name="no_movies_favorites_empty">No favorites to display.</string>
-
-    <string name="reviews_button_text">Read Reviews</string>
 
 </resources>

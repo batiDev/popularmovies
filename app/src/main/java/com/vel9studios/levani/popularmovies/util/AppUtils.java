@@ -29,7 +29,7 @@ import com.vel9studios.levani.popularmovies.data.MoviesContract;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Utility {
+public class AppUtils {
 
     public static String getPreferredSortOrder(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -37,15 +37,15 @@ public class Utility {
                 context.getString(R.string.pref_sort_default));
     }
 
-    // we want to query our db with the same criteria/sort order the user is querying the API
+    // query our local db with the same criteria/sort order the user is querying the API
     public static String getSortOrderQuery(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String sortOrder = prefs.getString(context.getString(R.string.pref_sort_key),
                 context.getString(R.string.pref_sort_default));
 
-        if (sortOrder.equals(AppConstants.SORT_TYPE_POPULARITY))
+        if (sortOrder.equals(AppConstants.QUERY_SORT_TYPE_POPULARITY))
             return MoviesContract.MoviesEntry.COLUMN_POPULARITY + " DESC";
-        else if (sortOrder.equals(AppConstants.SORT_TYPE_VOTE))
+        else if (sortOrder.equals(AppConstants.QUERY_SORT_TYPE_VOTE))
             return MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE + " DESC";
 
         return null;
@@ -59,11 +59,15 @@ public class Utility {
     /**
      * movie objects may contain fields which contain "something" but are actually null:
      * e.g. response will read: "overview":null
-     * The presence of null means that get(key) won't actually return null,
-     * instead it returns a JSONObject with the value of null. The toString() then
-     * returns "null" string. This allows us to:
      *
-     * a. actually check for null
+     * The presence of null means that get(key) won't actually return a null value.
+     * Instead the get(key) method returns a JSONObject with the value of null. The toString() then
+     * returns "null" string.
+     *
+     * This rather confusing API characteristic (if something is null.. maybe don't include it in the response?)
+     * still allows us to:
+     *
+     * a. check for null
      * b. handle gracefully
      *
      * @param movieObj current JSONObject containing movie data
@@ -75,10 +79,10 @@ public class Utility {
 
         String content;
         Object subMovieObj = movieObj.get(key);
-        if (subMovieObj != null && !subMovieObj.toString().equalsIgnoreCase(AppConstants.STRING_MOVIEDB_NULL))
+        if (subMovieObj != null && !subMovieObj.toString().equalsIgnoreCase(AppConstants.JSON_PARSE_NULL))
             content = subMovieObj.toString();
         else
-            content = AppConstants.STRING_NO_DATA;
+            content = AppConstants.JSON_PARSE_STRING_NO_DATA;
 
         return content;
     }
@@ -88,9 +92,9 @@ public class Utility {
 
         String favoriteMessage = "";
         if (favoriteFlag.equals(AppConstants.Y_FLAG))
-            favoriteMessage = movieTitle + " successfully added to favorites";
+            favoriteMessage = movieTitle + AppConstants.MESSAGE_FAVORITE_ADDED;
         else if (favoriteFlag.equals(AppConstants.N_FLAG))
-            favoriteMessage = movieTitle + " removed from favorites";
+            favoriteMessage = movieTitle + AppConstants.MESSAGE_FAVORITE_REMOVED;
 
         Toast appStart = Toast.makeText(context, favoriteMessage, Toast.LENGTH_SHORT);
         appStart.show();
