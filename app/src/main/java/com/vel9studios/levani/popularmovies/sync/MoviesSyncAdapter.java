@@ -42,6 +42,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
 
         String sortType = AppUtils.getPreferredSortOrder(getContext());
+        Log.d(LOG_TAG, "performing sync with " + sortType);
 
         try{
 
@@ -63,6 +64,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param context The context used to access the account service
      */
     public static void syncImmediately(Context context) {
+
 
         // cancel any pending syncs
         // http://stackoverflow.com/questions/13132865/cant-perform-sync-onperformsync-is-not-called

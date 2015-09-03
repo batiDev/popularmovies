@@ -104,8 +104,6 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
             mMoviesAdapter = new MovieAdapter(context, null, 0);
 
             mGridView = (GridView) view;
-
-
             // will display the view passed into setEmptyView if no data is available
             mGridView.setEmptyView(rootView.findViewById(R.id.empty_grid_view));
             mGridView.setAdapter(mMoviesAdapter);
