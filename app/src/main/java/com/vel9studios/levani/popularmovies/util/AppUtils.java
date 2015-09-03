@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.vel9studios.levani.popularmovies.R;
@@ -36,6 +37,19 @@ public class AppUtils {
         return prefs.getString(context.getString(R.string.pref_sort_key),
                 context.getString(R.string.pref_sort_default));
     }
+
+    public static void setPreferredFavoritesState(Context context, Boolean showFavorites) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.edit().putBoolean(AppConstants.FAVORITE_PREF_KEY, showFavorites).commit();
+    }
+
+    public static Boolean getPreferredFavoritesState(Context context) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(AppConstants.FAVORITE_PREF_KEY, false);
+    }
+
+
 
     // query our local db with the same criteria/sort order the user is querying the API
     public static String getSortOrderQuery(Context context) {

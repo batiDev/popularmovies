@@ -36,10 +36,6 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
         mActiveSortType = AppUtils.getPreferredSortOrder(this);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState != null){
-            mShowFavorites = savedInstanceState.getBoolean(AppConstants.FAVORITE_IND);
-        }
-
         // two-pane code from Developing Android Apps: Fundamentals course
         if (findViewById(R.id.movie_detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts
@@ -97,6 +93,9 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
             mActiveSortType = sortType;
         }
+
+        // set current favorites state
+        mShowFavorites = AppUtils.getPreferredFavoritesState(this);
     }
 
     // launch Reviews activity
@@ -125,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
                 fragment.setArguments(args);
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.movie_detail_container, fragment, AppConstants.REVIEW_FRAGMENT_TAG)
-                        // add to backstrack so user can use the back button
+                        // add to backstack so user can use the back button
                         .addToBackStack(AppConstants.REVIEW_FRAGMENT_TAG)
                         .commit();
             }
@@ -143,15 +142,15 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
         String favoriteFlag = AppUtils.getFavoriteFlag(favoriteInd);
         Uri favoriteUri = MoviesContract.MoviesEntry.buildFavoriteUri(movieId, favoriteFlag);
-        int updated = this.getContentResolver().update(favoriteUri, null, null, null);
+        int numRecordsUpdated = this.getContentResolver().update(favoriteUri, null, null, null);
 
-        if (updated == 1) {
+        if (numRecordsUpdated == 1) {
             AppUtils.displayFavoritesMessage(favoriteFlag, movieTitle, this);
-        }
 
-        DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().findFragmentById(R.id.movie_detail_container);
-        if ( null != detailFragment) {
-            detailFragment.onFavoriteToggle();
+            DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().findFragmentById(R.id.movie_detail_container);
+            if ( null != detailFragment) {
+                detailFragment.onFavoriteToggle();
+            }
         }
     }
 
@@ -173,10 +172,18 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
             PopularMoviesFragment popularMoviesFragment = (PopularMoviesFragment)getSupportFragmentManager().findFragmentById(R.id.popular_movies_fragment);
             if (popularMoviesFragment != null) {
-                //toggle mShowFavorites value
-                //TODO: revisit keeping favorites state in shared preferences
+                // toggle state
                 mShowFavorites = !mShowFavorites;
+                // notify fragment of change with new value
                 popularMoviesFragment.onFavoritesChanged(mShowFavorites);
+                /*
+                    We set the favorites to shared preferences instead of as an instance variable.
+                    I'd like to keep the previously set favorite state even when user closes or moves away from the application.
+                    Expectation is, I say "show favorites,"  then I leave application, do something else, and when I come back,
+                    I expect to still see the favorites.
+                 */
+                AppUtils.setPreferredFavoritesState(this, mShowFavorites);
+                // update menu option text
                 setFavoritesMenuText(item);
             }
         }
@@ -187,9 +194,15 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
     private void setFavoritesMenuText(MenuItem item){
 
         Resources resources = getResources();
-        if (mShowFavorites) item.setTitle(resources.getString(R.string.action_favorites_hide));
-        else item.setTitle(resources.getString(R.string.action_favorites_show));
 
+        String favoritesTitle;
+        if (mShowFavorites) {
+            favoritesTitle = resources.getString(R.string.action_favorites_hide);
+        } else {
+            favoritesTitle = resources.getString(R.string.action_favorites_show);
+        }
+
+        item.setTitle(favoritesTitle);
     }
 
     @Override
@@ -226,9 +239,7 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean(AppConstants.FAVORITE_IND, mShowFavorites);
         super.onSaveInstanceState(savedInstanceState);
     }
-
 
 }

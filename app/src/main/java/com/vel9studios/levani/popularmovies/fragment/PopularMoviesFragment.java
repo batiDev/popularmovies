@@ -29,6 +29,7 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     private final String LOG_TAG = PopularMoviesFragment.class.getSimpleName();
     private MovieAdapter mMoviesAdapter;
     private Boolean mShowFavorites = false;
+    private TextView mFavoritesBanner;
     private int mPosition = ListView.INVALID_POSITION;
 
     private GridView mGridView;
@@ -60,9 +61,18 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     // flip favorites flag and restart loader
     public void onFavoritesChanged(Boolean showFavorites) {
         mShowFavorites = showFavorites;
+        setFavoritesBanner();
         // restarting the loader will allow the UI to display the favorite state
         // based on the state of the data in the db. Doesn't rely solely on user input.
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
+    }
+
+    private void setFavoritesBanner(){
+        if (mShowFavorites) {
+            mFavoritesBanner.setVisibility(View.VISIBLE);
+        } else {
+            mFavoritesBanner.setVisibility(View.GONE);
+        }
     }
 
     public void onSortOrderChanged(){
@@ -81,6 +91,8 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+
+
         Context context = getActivity();
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         View view = rootView.findViewById(R.id.grid_item_movie_image);
@@ -92,6 +104,8 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
             mMoviesAdapter = new MovieAdapter(context, null, 0);
 
             mGridView = (GridView) view;
+
+
             // will display the view passed into setEmptyView if no data is available
             mGridView.setEmptyView(rootView.findViewById(R.id.empty_grid_view));
             mGridView.setAdapter(mMoviesAdapter);
@@ -117,6 +131,11 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
             if (savedInstanceState != null && savedInstanceState.containsKey(AppConstants.SELECTED_ITEM_POSITION)) {
                 mPosition = savedInstanceState.getInt(AppConstants.SELECTED_ITEM_POSITION);
             }
+
+            // set favorite state
+            mShowFavorites = AppUtils.getPreferredFavoritesState(getActivity());
+            mFavoritesBanner = (TextView) rootView.findViewById(R.id.favorites_banner);
+            setFavoritesBanner();
         }
 
         return rootView;

@@ -54,6 +54,7 @@ public class AppConstants {
     public static final String N_FLAG = "N";
 
     public static final String FAVORITE_IND = "favoriteInd";
+    public static final String FAVORITE_PREF_KEY = "favoriteInd";
 
     public static final String MOVIE_ID_KEY = "movieId";
 

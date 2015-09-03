@@ -16,6 +16,7 @@
 
     <!-- detail view -->
     <string name="label_rating">Rating</string>
+    <string name="label_favorites">Favorites</string>
 
     <!--reviews-->
     <string name="label_reviews_button">Read Reviews</string>
