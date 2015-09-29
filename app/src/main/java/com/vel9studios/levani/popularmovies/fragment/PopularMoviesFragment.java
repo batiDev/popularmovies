@@ -77,6 +77,8 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
 
     public void onSortOrderChanged(){
         // if sort changes, re-query API, and update everything
+        // reset position
+        mPosition = 0;
         MoviesSyncAdapter.syncImmediately(getActivity());
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
     }
@@ -90,8 +92,6 @@ public class PopularMoviesFragment extends Fragment implements LoaderManager.Loa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
 
         Context context = getActivity();
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);

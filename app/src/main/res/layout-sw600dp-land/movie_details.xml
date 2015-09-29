@@ -95,6 +95,8 @@
         android:padding="@dimen/default_padding"
         android:id="@+id/detail_movie_overview"
         android:background="@color/overview_background"
+        android:fontFamily="sans-serif-light"
+        android:textSize="@dimen/abc_text_size_medium_material"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />

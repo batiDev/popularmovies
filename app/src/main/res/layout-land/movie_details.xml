@@ -27,8 +27,11 @@
                 android:id="@+id/detail_movie_image"
                 android:layout_width="@dimen/detail_image_width"
                 android:layout_height="@dimen/detail_image_height"
-                android:padding="@dimen/padding_medium_small"
-                android:layout_gravity="center"
+                android:paddingTop="@dimen/padding_medium"
+                android:paddingLeft="@dimen/padding_medium_small"
+                android:paddingRight="@dimen/padding_medium_small"
+                android:paddingBottom="@dimen/padding_medium_small"
+                android:layout_gravity="center_horizontal"
                 />
 
             <!-- overview text content -->
@@ -36,6 +39,8 @@
                 android:layout_margin="@dimen/padding_medium_small"
                 android:padding="@dimen/padding_small"
                 android:id="@+id/detail_movie_overview"
+                android:fontFamily="sans-serif-light"
+                android:textSize="@dimen/abc_text_size_medium_material"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 

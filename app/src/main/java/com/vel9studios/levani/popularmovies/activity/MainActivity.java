@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,22 +75,17 @@ public class MainActivity extends AppCompatActivity implements PopularMoviesFrag
         super.onResume();
 
         String sortType = AppUtils.getPreferredSortOrder(this);
-        Log.d(LOG_TAG, sortType);
 
         // if user has selected a new sort type, update the app accordingly
         if (!mActiveSortType.equals(sortType)){
 
             PopularMoviesFragment popularMoviesFragment = (PopularMoviesFragment)getSupportFragmentManager().findFragmentById(R.id.popular_movies_fragment);
-            if ( null != popularMoviesFragment ) {
-
+            if (popularMoviesFragment != null)
                 popularMoviesFragment.onSortOrderChanged();
-            }
 
             DetailFragment detailFragment = (DetailFragment)getSupportFragmentManager().findFragmentByTag(AppConstants.DETAIL_FRAGMENT_TAG);
-            if ( null != detailFragment) {
-
+            if (detailFragment != null)
                 detailFragment.onSortOrderChanged();
-            }
 
             mActiveSortType = sortType;
         }
