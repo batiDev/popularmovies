@@ -18,8 +18,8 @@ public class AppConstants {
     public static final String QUERY_API_KEY_PARAM = "api_key";
     // Query params - image
     public static final String QUERY_IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w";
-    public static final String QUERY_GRID_IMAGE_QUERY_WIDTH = "185/";
-    public static final String QUERY_DETAIL_IMAGE_QUERY_WIDTH = "185/";
+    public static final String QUERY_GRID_IMAGE_QUERY_WIDTH = "500/";
+    public static final String QUERY_DETAIL_IMAGE_QUERY_WIDTH = "500/";
     //sort orders
     public static final String QUERY_SORT_TYPE_POPULARITY = "popularity.desc";
     public static final String QUERY_SORT_TYPE_VOTE = "vote_average.desc";

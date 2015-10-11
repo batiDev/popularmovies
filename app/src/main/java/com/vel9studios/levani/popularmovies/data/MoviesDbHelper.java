@@ -23,7 +23,7 @@ import com.vel9studios.levani.popularmovies.data.MoviesContract.MoviesEntry;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.ReviewsEntry;
 import com.vel9studios.levani.popularmovies.data.MoviesContract.VideosEntry;
 
-//Core code from "Developing Android Apps: Fundamentals"
+//Code Reference: "Developing Android Apps: Fundamentals"
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
     private final String LOG_TAG = MoviesDAO.class.getSimpleName();

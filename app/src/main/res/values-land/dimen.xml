@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- detail header -->
+    <dimen name="detail_header_padding">16dp</dimen>
+
+</resources>

@@ -33,7 +33,6 @@ public class FetchReviewsTask extends AsyncTask<String, Void, Void> {
             MoviesDAO moviesDAO = new MoviesDAO();
             //fetch data from server
             String reviewsJSONStr = moviesDAO.getReviews(mMovieId);
-
             //get serialized data
             getVideosDataFromJson(reviewsJSONStr);
 
